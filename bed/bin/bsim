@@ -1,0 +1,192 @@
+#!/bin/sh
+# -*- coding: utf-8-unix -*-
+CMDNAME=$(basename $0)
+
+usage()
+{
+    cat <<EOF
+Usage: ${CMDNAME} [options] testcase_directory
+  options
+    -h                  : help
+    -p <project_file>   : RTL project file
+    -t <testbench_file> : testbench SystemVerilog file
+  examples
+    ${CMDNAME} -h
+EOF
+}
+
+RTL_PRJ=""
+TESTCASE_DIR=""
+TESTBENCH_FILE=""
+SNAP_SHOT=""
+SCENARIO_FILE=""
+LOG_DIR="rtl_log"
+
+E_FLAG=0
+for OPT in "$@"; do
+    case "${OPT}" in
+	'-h'|'--help')
+	    usage
+	    exit 0
+	    ;;
+	'-p'|'--project')
+	    if [ -z "$2" ] || [[ "$2" =~ ^-+ ]]; then
+     		echo "${PROGNAME}: option requires an argument -- $1" 1>&2
+		E_FLAG=1
+		shift 1
+	    else
+		RTL_PRJ="${PWD}/$2"
+		shift 2
+	    fi
+	    ;;
+	'-t'|'--testbench')
+	    if [ -z "$2" ] || [[ "$2" =~ ^-+ ]]; then
+		echo "${PROGNAME}: option requires an argument -- $1" 1>&2
+		E_FLAG=1
+		shift 1
+	    else
+		TESTBENCH_FILE="${PWD}/$2"
+		shift 2
+	    fi
+	    ;;
+ 	'--'|'-')
+	    shift 1
+	    param="${param} $@"
+	    break
+	    ;;
+	-*)
+	    echo "${CMDNAME}: illegal option -- `$(echo $1 | sed 's/^-*//')`" 1>&2
+	    exit 1
+	    ;;
+	*)
+	    if [ ! -z "$1" ] && [[ ! "$1" =~ ^-+ ]]; then
+		param="${param} $1"
+		shift 1
+	    fi
+	    ;;
+    esac	
+done
+
+# RTLプロジェクトファイル指定とテストケースディレクトリ指定のどちらかがなければならない
+if [ -z "${RTL_PRJ}" ] && [ -z "${param}" ]; then
+    echo "${CMDNAME}: too few arguments" 1>&2
+    echo "Try '${CMDNAME} --help' for more information." 1>&2
+    exit 1
+fi
+
+if [ ! -z "${param}" ]; then
+    TESTCASE_DIR=$( cd ${param}; pwd )
+fi
+
+# 引数解析エラー
+if [ "${E_FLAG}" -eq 1 ]; then
+    usage
+    exit 1
+fi
+
+# テストケース、シナリオの存在確認
+if [ ! -z "${TESTCASE_DIR}" ]; then
+    if [ ! -d "${TESTCASE_DIR}" ]; then
+	echo "Error: 指定された${TESTCASE_DIR}は、ディレクトリではない"
+	E_FLAG=1
+    else
+	SNAP_SHOT=$( echo ${TESTCASE_DIR} | awk -F "/" '{ print $(NF-1)"_"$(NF) }')
+	# TESTCASE_DIR中にシナリオが存在することの確認
+	# シナリオファイルは"scenario"で始まり、拡張子が".c"であること
+	SCENARIO_FILE=`find ${TESTCASE_DIR} -maxdepth 1 -name "scenario*.c" -prune -printf "%f"`
+	if [ ! -z "${TESTCASE_DIR}" ] && [ -z "${SCENARIO_FILE}" ]; then
+	    echo "Error: シナリオ記述がTESTCASE_DIR(${TESTCASE_DIR})中に無い"
+	    E_FLAG=1
+	fi
+    fi
+fi
+
+# テストベンチ（最上位ファイル）が指定された場合の存在確認
+if [ ! -z "${TESTBENCH_FILE}" ]; then
+    if [ ! -e "${TESTBENCH_FILE}" ]; then
+	echo "Error: テストベンチファイル(${TESTBENCH_FILE})が存在しない。"
+	E_FLAG=1
+    fi
+fi
+
+# RTL_PRJが指定された場合の存在確認
+if [ ! -z "${RTL_PRJ}" ]; then
+    if [ ! -e "${RTL_PRJ}" ]; then
+	echo "Error: ＲＴＬプロジェクトファイル(${RTL_PRJ})が存在しない。"
+	E_FLAG=1
+    fi
+fi
+
+if [ "${E_FLAG}" -eq 1 ]; then
+    exit 1
+fi
+
+# 実行結果ディレクトリのバックアップ
+rename_dir()
+{
+    local BDIR=$1
+    local MDIR=$2
+    local FILE=$3
+    local SIM=""
+    local DT=`find ${BDIR} -maxdepth 1 -name "${MDIR}" -printf "$TY%Tm%Td%TH%TM%TS"`
+    if [ ! -z "${DT}" ]; then
+	SIM=`find ${BDIR}/${MDIR} -maxdepth 1 -name "xsim${FILE}"`
+	if [ ! -z "${SIM}" ]; then
+	    SIM="xsim"
+	else
+	    SIM=""
+	fi
+	if [ ! -z "${SIM}" ]; then
+	    eval "/bin/mv ${BDIR}/${MDIR} ${BDIR}/${MDIR}_${SIM}_${DT}"
+	    mkdir "${BDIR}/${MDIR}"
+	else
+	    eval "/bin/mv ${BDIR}/${MDIR} ${BDIR}/${MDIR}_${DT}"
+	    mkdir "${BDIR}/${MDIR}"
+	fi
+    else
+	mkdir "${BDIR}/${MDIR}"
+    fi
+}
+
+# シナリオコンパイル処理定義
+scenario_compile()
+{
+    local logfile="${LOG_DIR}/scenario_compile.log"
+    echo "===== Scenario Compile start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
+    echo "${XV_PATH}/bin/xsc ${XSC_OPTS} ${TESTCASE_DIR}/${SCENARIO_FILE}" 2>&1 | tee -a ${logfile}
+    ${XV_PATH}/bin/xsc ${XSC_OPTS} ${TESTCASE_DIR}/${SCENARIO_FILE} 2>&1 | tee -a ${logfile}
+    if [ -e ${logfile} -a $( grep -e "ERROR:" ${logfile} | wc -l) -ne 0 ]; then
+	exit 1
+    fi
+    echo "===== Scenario Compile end  :$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee -a ${logfile}
+}
+
+# RTLコンパイル処理定義
+rtl_compile()
+{
+    local logfile="${LOG_DIR}/rtl_compile.log"
+    echo "===== RTL Compile start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
+    echo "${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -prj ${RTL_PRJ}" 2>&1 | tee -a ${logfile}
+    ${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -prj ${RTL_PRJ} 2>&1 | tee -a ${logfile}
+    if [ -e ${logfile} -a $( grep -e "ERROR:" ${logfile} | wc -l) -ne 0 ]; then
+	exit 1
+    fi
+    echo "===== RTL Compile end  :$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee -a ${logfile}
+}
+
+
+# 実行処理
+if [ ! -d "${LOG_DIR}" ]; then
+    mkdir "${LOG_DIR}"
+fi
+if [ -e command.log ]; then
+    rm -f command.log
+fi
+# シナリオコンパイル
+if [ ! -z "${SCENARIO_FILE}" ]; then
+    scenario_compile
+fi
+# RTLコンパイル
+if [ ! -z "${RTL_PRJ}" ]; then
+    rtl_compile
+fi
