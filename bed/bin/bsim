@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # -*- coding: utf-8-unix -*-
 CMDNAME=$(basename $0)
 
@@ -51,7 +51,7 @@ for OPT in "$@"; do
 	    ;;
  	'--'|'-')
 	    shift 1
-	    param="${param} $@"
+	    param+=( "$@" )
 	    break
 	    ;;
 	-*)
@@ -60,7 +60,7 @@ for OPT in "$@"; do
 	    ;;
 	*)
 	    if [ ! -z "$1" ] && [[ ! "$1" =~ ^-+ ]]; then
-		param="${param} $1"
+		param+=( "$1" )
 		shift 1
 	    fi
 	    ;;
