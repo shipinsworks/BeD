@@ -1,6 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8-unix -*-
 CMDNAME=$(basename $0)
+CWD=$(pwd)
 
 usage()
 {
@@ -18,6 +19,9 @@ EOF
 RTL_PRJ=""
 TESTCASE_DIR=""
 TESTBENCH_FILE=""
+TOP=""
+WORKLIB="worklib"
+BED_SV_INCDIR="${CWD}/bed/sv"
 SNAP_SHOT=""
 SCENARIO_FILE=""
 LOG_DIR="rtl_log"
@@ -106,6 +110,8 @@ if [ ! -z "${TESTBENCH_FILE}" ]; then
     if [ ! -e "${TESTBENCH_FILE}" ]; then
 	echo "Error: テストベンチファイル(${TESTBENCH_FILE})が存在しない。"
 	E_FLAG=1
+    else
+	TOP=$(basename ${TESTBENCH_FILE} .sv)
     fi
 fi
 
@@ -174,6 +180,47 @@ rtl_compile()
     echo "===== RTL Compile end  :$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee -a ${logfile}
 }
 
+# テストベンチのコンパイル処理定義
+testbench_compile()
+{
+    local logfile="${LOG_DIR}/testbench_compile.log"
+    echo "===== TestBench Compile start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
+    echo "${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -work ${WORKLIB} --include ${BED_SV_INCDIR} -sv ${TESTBENCH_FILE}" 2>&1 | tee -a ${logfile}
+    ${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -work ${WORKLIB} --include ${BED_SV_INCDIR} -sv ${TESTBENCH_FILE} 2>&1 | tee -a ${logfile}
+    if [ -e ${logfile} -a $( grep -e "ERROR:" ${logfile} | wc -l) -ne 0 ]; then
+	exit 1
+    fi
+    echo "===== TestBench Compile end  :$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee -a ${logfile}
+}
+
+# エラボレート処理定義
+elabolate()
+{
+    local logfile="${LOG_DIR}/elabolate_compile.log"
+    echo "===== Elabolate start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
+    echo "${XV_PATH}/bin/xelab ${XELAB_OPTS} ${WORKLIB}.${TOP} --snapshot ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
+    ${XV_PATH}/bin/xelab ${XELAB_OPTS} ${WORKLIB}.${TOP} --snapshot ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
+    if [ -e ${logfile} -a $( grep -e "ERROR:" ${logfile} | wc -l) -ne 0 ]; then
+	exit 1
+    fi
+    echo "===== Elabolate end  :$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee -a ${logfile}
+}
+
+# シミュレーション処理定義
+simulation()
+{
+    RUN_TCL="${TESTCASE_DIR}/sim/run.tcl"
+    echo "run -all; quit" > ${RUN_TCL}
+    local logfile="${LOG_DIR}/elabolate_compile.log"
+    echo "===== Simulation start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
+    echo "${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
+    ${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
+    if [ -e ${logfile} -a $( grep -e "ERROR:" ${logfile} | wc -l) -ne 0 ]; then
+	exit 1
+    fi
+    echo "===== Simulation end  :$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee -a ${logfile}
+    
+}
 
 # 実行処理
 if [ ! -d "${LOG_DIR}" ]; then
@@ -189,4 +236,17 @@ fi
 # RTLコンパイル
 if [ ! -z "${RTL_PRJ}" ]; then
     rtl_compile
+fi
+# テストベンチコンパイル
+if [ ! -z "${TESTBENCH_FILE}" ]; then
+    testbench_compile
+fi
+# エラボレート
+if [ ! -z "${TESTCASE_DIR}" ]; then
+    elabolate
+fi
+# シミュレート
+if [ ! -z "${TESTCASE_DIR}" ]; then
+    rename_dir "${TESTCASE_DIR}" "sim" "*.log"
+    simulation
 fi
