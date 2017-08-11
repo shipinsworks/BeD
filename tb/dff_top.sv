@@ -1,3 +1,4 @@
+`include "macro.svh"
 
 module dff_top;
 
@@ -20,6 +21,9 @@ module dff_top;
    logic dout;
 
    initial begin
+      `debug_printf(( "scenario call." ));
+      scenario();
+      
       din = 1'b0;
       #12 din = 1'b1;
       #10 din = 1'b0;
@@ -30,5 +34,8 @@ module dff_top;
 	   .rst(rst),
 	   .din(din),
 	   .dout(dout));
+
+`include "dpi-c.svh"
+`include "scenario_task.svh"
    
 endmodule // dff_top

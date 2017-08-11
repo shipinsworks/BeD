@@ -24,7 +24,10 @@ WORKLIB="worklib"
 BED_SV_INCDIR="${CWD}/bed/sv"
 SNAP_SHOT=""
 SCENARIO_FILE=""
-LOG_DIR="rtl_log"
+XSC_OPTS="--additional_option -Ibed/c"
+XVLOG_OPTS="--nolog"
+XELAB_OPTS="--nolog --sv_lib dpi --lib ${WORKLIB}"
+XSIM_OPTS="--nolog"
 
 E_FLAG=0
 for OPT in "$@"; do
@@ -72,7 +75,7 @@ for OPT in "$@"; do
 done
 
 # RTLプロジェクトファイル指定とテストケースディレクトリ指定のどちらかがなければならない
-if [ -z "${RTL_PRJ}" ] && [ -z "${param}" ]; then
+if [ -z "${RTL_PRJ}" ] && [ -z "${param}" ] && [ -z "${TESTBENCH_FILE}" ]; then
     echo "${CMDNAME}: too few arguments" 1>&2
     echo "Try '${CMDNAME} --help' for more information." 1>&2
     exit 1
@@ -94,7 +97,7 @@ if [ ! -z "${TESTCASE_DIR}" ]; then
 	echo "Error: 指定された${TESTCASE_DIR}は、ディレクトリではない"
 	E_FLAG=1
     else
-	SNAP_SHOT=$( echo ${TESTCASE_DIR} | awk -F "/" '{ print $(NF-1)"_"$(NF) }')
+	SNAP_SHOT=$( echo $( cd ${TESTCASE_DIR};pwd ) | awk -F "/" '{ print $(NF-1)"_"$(NF) }')
 	# TESTCASE_DIR中にシナリオが存在することの確認
 	# シナリオファイルは"scenario"で始まり、拡張子が".c"であること
 	SCENARIO_FILE=`find ${TESTCASE_DIR} -maxdepth 1 -name "scenario*.c" -prune -printf "%f"`
@@ -157,7 +160,7 @@ rename_dir()
 # シナリオコンパイル処理定義
 scenario_compile()
 {
-    local logfile="${LOG_DIR}/scenario_compile.log"
+    local logfile="${TESTCASE_DIR}/sim/scenario_compile.log"
     echo "===== Scenario Compile start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
     echo "${XV_PATH}/bin/xsc ${XSC_OPTS} ${TESTCASE_DIR}/${SCENARIO_FILE}" 2>&1 | tee -a ${logfile}
     ${XV_PATH}/bin/xsc ${XSC_OPTS} ${TESTCASE_DIR}/${SCENARIO_FILE} 2>&1 | tee -a ${logfile}
@@ -170,7 +173,7 @@ scenario_compile()
 # RTLコンパイル処理定義
 rtl_compile()
 {
-    local logfile="${LOG_DIR}/rtl_compile.log"
+    local logfile="rtl_$(basename ${RTL_PRJ%.prj})_compile.log"
     echo "===== RTL Compile start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
     echo "${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -prj ${RTL_PRJ}" 2>&1 | tee -a ${logfile}
     ${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -prj ${RTL_PRJ} 2>&1 | tee -a ${logfile}
@@ -183,7 +186,7 @@ rtl_compile()
 # テストベンチのコンパイル処理定義
 testbench_compile()
 {
-    local logfile="${LOG_DIR}/testbench_compile.log"
+    local logfile="testbench_$(basename ${TESTBENCH_FILE%.sv})_compile.log"
     echo "===== TestBench Compile start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
     echo "${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -work ${WORKLIB} --include ${BED_SV_INCDIR} -sv ${TESTBENCH_FILE}" 2>&1 | tee -a ${logfile}
     ${XV_PATH}/bin/xvlog ${MACRO_DEFINE} ${XVLOG_OPTS} -work ${WORKLIB} --include ${BED_SV_INCDIR} -sv ${TESTBENCH_FILE} 2>&1 | tee -a ${logfile}
@@ -196,7 +199,7 @@ testbench_compile()
 # エラボレート処理定義
 elabolate()
 {
-    local logfile="${LOG_DIR}/elabolate_compile.log"
+    local logfile="${TESTCASE_DIR}/sim/elabolate.log"
     echo "===== Elabolate start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
     echo "${XV_PATH}/bin/xelab ${XELAB_OPTS} ${WORKLIB}.${TOP} --snapshot ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
     ${XV_PATH}/bin/xelab ${XELAB_OPTS} ${WORKLIB}.${TOP} --snapshot ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
@@ -211,7 +214,7 @@ simulation()
 {
     RUN_TCL="${TESTCASE_DIR}/sim/run.tcl"
     echo "run -all; quit" > ${RUN_TCL}
-    local logfile="${LOG_DIR}/elabolate_compile.log"
+    local logfile="${TESTCASE_DIR}/sim/sim.log"
     echo "===== Simulation start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
     echo "${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
     ${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
@@ -223,11 +226,11 @@ simulation()
 }
 
 # 実行処理
-if [ ! -d "${LOG_DIR}" ]; then
-    mkdir "${LOG_DIR}"
-fi
 if [ -e command.log ]; then
     rm -f command.log
+fi
+if [ ! -z "${TESTCASE_DIR}" ]; then
+    rename_dir "${TESTCASE_DIR}" "sim" "*.log"
 fi
 # シナリオコンパイル
 if [ ! -z "${SCENARIO_FILE}" ]; then
@@ -242,11 +245,10 @@ if [ ! -z "${TESTBENCH_FILE}" ]; then
     testbench_compile
 fi
 # エラボレート
-if [ ! -z "${TESTCASE_DIR}" ]; then
+if [ ! -z "${TESTCASE_DIR}" ] && [ ! -z "${TESTBENCH_FILE}" ]; then
     elabolate
 fi
 # シミュレート
-if [ ! -z "${TESTCASE_DIR}" ]; then
-    rename_dir "${TESTCASE_DIR}" "sim" "*.log"
+if [ ! -z "${TESTCASE_DIR}" ] && [ ! -z "${SCENARIO_FILE}" ]; then
     simulation
 fi
