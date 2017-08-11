@@ -24,6 +24,7 @@ WORKLIB="worklib"
 BED_SV_INCDIR="${CWD}/bed/sv"
 SNAP_SHOT=""
 SCENARIO_FILE=""
+MACRO_DEFINE=""
 XSC_OPTS="--additional_option -Ibed/c"
 XVLOG_OPTS="--nolog"
 XELAB_OPTS="--nolog --sv_lib dpi --lib ${WORKLIB}"
@@ -53,6 +54,21 @@ for OPT in "$@"; do
 		shift 1
 	    else
 		TESTBENCH_FILE="${PWD}/$2"
+		shift 2
+	    fi
+	    ;;
+	'-d'|'--deinfe')
+	    if [ -z "$2" ] || [[ "$2" =~ ^-+ ]]; then
+		echo "${PROGNAME}: option requires an argument -- $1" 1>&2
+		E_FLAG=1
+		shift 1
+	    else
+		if [ -z "${MACRO_DEFINE}" ]; then
+		    MACRO_DEFINE="--define ${2}"
+		else
+		    MACRO_DEFINE="${MACRO_DEFINE} --define ${2}"
+		fi
+		XSC_OPTS="${XSC_OPTS} --additional_option -D${2}"
 		shift 2
 	    fi
 	    ;;
