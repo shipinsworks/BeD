@@ -8,7 +8,5 @@
 `endif
 
 typedef int unsigned uint32;
-  
-`define S2CIF_DATA_SIZE 16
 
 `endif

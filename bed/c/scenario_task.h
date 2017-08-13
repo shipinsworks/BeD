@@ -30,10 +30,23 @@ void msg_printf( char *format, ... )
 #define debug_printf(...)
 #endif
 
-void sc_get_data( const unsigned int id, const unsigned int fn, unsigned int *ret, unsigned int data[16])
+typedef int unsigned uint32;
+
+// Sim側との転送パケット
+#define S2CIF_DATA_SIZE 16
+typedef struct {
+   uint32 id;
+   uint32 fn;
+   uint32 ret;
+   uint32 data[S2CIF_DATA_SIZE];
+} pkt_s;
+
+// Sim側からの要求受付関数
+void sc_get_data( pkt_s *pkt )
 {
-  data[0] = 0x12345678;
-  *ret = 0;
+  debug_printf("pkt.id:%08x",pkt->id);
+  pkt->data[0] = 0x12345678;
+  pkt->ret = 0;
 }
 
 #endif
