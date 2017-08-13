@@ -1,4 +1,6 @@
 `include "macro.svh"
+`include "s2cif.svh"
+`include "drv_dff.sv"
 
 module dff_top;
 
@@ -16,6 +18,8 @@ module dff_top;
       rst = 1'b1;
       #25 rst = 1'b0;
    end
+
+   s2cif s2cif();
    
    logic din;
    logic dout;
@@ -24,18 +28,25 @@ module dff_top;
       `debug_printf(( "scenario call." ));
       scenario();
       
-      din = 1'b0;
-      #12 din = 1'b1;
-      #10 din = 1'b0;
-      $finish;
+      #100 $finish;
    end
-   
+
+   drv_dff #( .id(1) )
+   drv_dff(
+	   .s2cif(s2cif),
+	   .clk(clk),
+	   .rst(rst),
+	   .din(din),
+	   .dout(dout)
+	   );
+
    dff DUT(.clk(clk),
 	   .rst(rst),
 	   .din(din),
 	   .dout(dout));
 
-`include "dpi-c.svh"
+
 `include "scenario_task.svh"
+`include "dpi-c.svh"
    
 endmodule // dff_top

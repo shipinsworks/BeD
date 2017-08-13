@@ -30,4 +30,10 @@ void msg_printf( char *format, ... )
 #define debug_printf(...)
 #endif
 
+void sc_get_data( const unsigned int id, const unsigned int fn, unsigned int *ret, unsigned int data[16])
+{
+  data[0] = 0x12345678;
+  *ret = 0;
+}
+
 #endif
