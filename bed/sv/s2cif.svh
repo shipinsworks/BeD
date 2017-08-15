@@ -24,6 +24,23 @@ interface s2cif();
       sc_get_data( pkt );
       req = 0;
    endtask // get_data
+
+   task automatic func_setup( input uint32 id, input uint32 fn, output uint32 ret );
+      pkt_s pkt;
+      pkt.id = id;
+      pkt.fn = fn;
+      s2c_s_func_setup( pkt );
+      ret = pkt.ret;
+   endtask // s2c_s_func_setup
+
+   task automatic func_call( input uint32 id, input uint32 fn, output uint32 ret, output uint32 data[`S2CIF_DATA_SIZE] );
+      pkt_s pkt;
+      pkt.id = id;
+      pkt.fn = fn;
+      s2c_func_call( pkt );
+      data = pkt.data;
+      ret = pkt.ret;
+   endtask // func_call
    
 endinterface // s2cif
 

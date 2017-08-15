@@ -2,9 +2,9 @@
  `define _DPI_C_SVH_
 
    import "DPI-C" context task scenario();
-//   import "DPI-C" task sc_get_data( input int unsigned id, input int unsigned fn, output int unsigned ret, output int unsigned data[`S2CIF_DATA_SIZE] );
    import "DPI-C" task sc_get_data( inout pkt_s pkt );
-   
+   import "DPI-C" task s2c_s_func_setup( inout pkt_s pkt );
+   import "DPI-C" task s2c_func_call( inout pkt_s pkt );
    export "DPI-C" task cs_printf;
    
 `endif

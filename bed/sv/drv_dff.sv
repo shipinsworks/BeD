@@ -17,16 +17,21 @@ module drv_dff
    pkt_s pkt;
    
    uint32 ret;
+
+   initial begin
+      s2cif.func_setup( id, 0, &ret ); // dff_get_data
+      if( ret != 0 ) $finish();
+   end
    
    always @( posedge clk, posedge rst ) begin
       if( rst == 1'b1 )
 	din_r0 <= 1'b0;
       else begin
-	 `debug_printf("call s2cif.get_data.");
 	 pkt.id = id;
 	 pkt.fn = 0;
-	 s2cif.get_data( pkt );
-	 `debug_printf($sformatf("data[0]:%08x", pkt.data[0]));
+	 // `debug_printf($sformatf("id:%d fn:%d",id,0));
+	 s2cif.func_call( id, 0, ret, pkt.data ); // dff_get_data
+	 // `debug_printf($sformatf("data[0]:%08x", pkt.data[0]));
 	 if( ret == 0 ) din_r0 <= pkt.data[0] & 1'b1;
 	 else if( ret == 1 ) din_r0 <= 1'b0; // data end
 	 else #100 $finish();
