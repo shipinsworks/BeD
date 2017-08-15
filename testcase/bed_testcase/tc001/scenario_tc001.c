@@ -1,9 +1,22 @@
 #include "stdio.h"
 #include "scenario.h"
+FILE *fp = NULL;
+char filepath[] = "dff_data.txt";
+
 uint32_t dff_get_data( pkt_s *pkt )
 {
-  pkt->data[0] = 0x12345678;
-  return 0;
+  int ret = 0;
+  if( fp == NULL ) {
+    if(( fp = fopen(filepath,"r")) == NULL ) {
+      printf("Error: Cannot open file(%s).",filepath);
+      ret = 2;
+    }
+  }
+  if( ret == 0 ) {
+    ret = fscanf( fp, "%d", pkt->data[0] );
+  }
+  //  pkt->data[0] = 0x12345678;
+  return ret;
 }
 
 int scenario()

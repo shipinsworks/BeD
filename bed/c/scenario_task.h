@@ -143,7 +143,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t (*func_ptr)( pkt_s
   return ret;
 }
 
-// Sim側からの要求受付関数
+// Sim側からのＣ言語要求受付関数の呼び出し
 void s2c_func_call( pkt_s *pkt )
 {
   uint32_t ret = 0;
