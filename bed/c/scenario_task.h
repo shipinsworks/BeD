@@ -16,9 +16,7 @@ typedef struct {
 } pkt_s;
 
 extern void cs_printf( char *str );
-extern void s2c_s_func_setup( pkt_s *pkt );
-extern void s2c_func_call( pkt_s *pkt );
-extern void sc_get_data( pkt_s *pkt );
+extern void dbg_printf( char *str );
 
 #define BASENAME(p) ((strrchr((p), '/') ? : ((p) - 1)) + 1)
 
@@ -69,6 +67,7 @@ typedef struct {
   uint32_t fn;
   uint32_t s_enable;
   uint32_t c_enable;
+  uint32_t end_flag;
   uint32_t (*func_ptr)( pkt_s *pkt );
 } func_s;
 
@@ -91,6 +90,7 @@ void s2c_s_func_setup( pkt_s *pkt )
 	 ( s2c_func_table[i].fn == pkt->fn ) &&
 	 ( s2c_func_table[i].c_enable != 0 )) {
 	s2c_func_table[i].s_enable = 1;
+	s2c_func_table[i].end_flag = 0;
 	debug_printf("s2c_func_table registration OK. C->S id:%d fn:%d",pkt->id, pkt->fn);
 	flag = 1;
       }
@@ -110,6 +110,7 @@ void s2c_s_func_setup( pkt_s *pkt )
       s2c_func_table[s2c_func_cnt].fn = pkt->fn;
       s2c_func_table[s2c_func_cnt].s_enable = 1;
       s2c_func_table[s2c_func_cnt].c_enable = 0;
+      s2c_func_table[s2c_func_cnt].end_flag = 0;
       s2c_func_table[s2c_func_cnt].func_ptr = null_func;
       debug_printf("s2c_func_table registration OK. S id:%d fn:%d",pkt->id, pkt->fn);
       s2c_func_cnt++;
@@ -122,7 +123,7 @@ void s2c_s_func_setup( pkt_s *pkt )
 }
 
 // Sim側マスタの要求関数の登録（C側からの初期設定）
-uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t (*func_ptr)( pkt_s *pkt ) )
+uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t (*func_ptr)( pkt_s *pkt ) )
 {
   uint32_t ret = 0;
   int flag = 0;
@@ -132,6 +133,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t (*func_ptr)( pkt_s
 	 ( s2c_func_table[i].fn == fn ) &&
 	 ( s2c_func_table[i].s_enable != 0 )) {
 	s2c_func_table[i].c_enable = 1;
+	s2c_func_table[i].end_flag = end_flag;
 	s2c_func_table[i].func_ptr = func_ptr;
 	debug_printf("s2c_func_setup registration OK. S->C id:%d fn:%d", id, fn);
 	flag = 1;
@@ -152,6 +154,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t (*func_ptr)( pkt_s
       s2c_func_table[s2c_func_cnt].fn = fn;
       s2c_func_table[s2c_func_cnt].s_enable = 0;
       s2c_func_table[s2c_func_cnt].c_enable = 1;
+      s2c_func_table[s2c_func_cnt].end_flag = end_flag;
       s2c_func_table[s2c_func_cnt].func_ptr = func_ptr;
       debug_printf("s2c_func_setup registration OK. C id:%d fn:%d", id, fn);
       s2c_func_cnt++;
@@ -166,15 +169,19 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t (*func_ptr)( pkt_s
 // Sim側からのＣ言語要求受付関数の呼び出し
 void s2c_func_call( pkt_s *pkt )
 {
-  uint32_t ret = 0;
+  int ret = 0;
   uint32_t flag = 0;
   for( int i = 0; i < s2c_func_cnt; i++ ) {
     if(( s2c_func_table[i].id == pkt->id ) &&
        ( s2c_func_table[i].fn == pkt->fn )) {
       if(( s2c_func_table[i].s_enable == 1 ) &&
 	 ( s2c_func_table[i].c_enable == 1 )) {
-	debug_printf("s2c_func_table[%d] id:%d fn:%d func called.", i, s2c_func_table[i].id, s2c_func_table[i].fn);
 	ret = s2c_func_table[i].func_ptr( pkt );
+	debug_printf("s2c_func_table[%d] id:%d fn:%d func called. ret:%d", i, s2c_func_table[i].id, s2c_func_table[i].fn, ret);
+	if( ret <= 0 ) {
+	  s2c_func_table[i].end_flag = 0;
+	  ret = 1;
+	}
 	flag = 1;
       } else {
 	printf("Error: Sim側マスタの要求関数の設定不具合有り。 S:%1d C:%1d",s2c_func_table[i].s_enable,s2c_func_table[i].c_enable);
@@ -188,6 +195,15 @@ void s2c_func_call( pkt_s *pkt )
     ret = 1001;
   }
   pkt->ret = ret;
+}
+
+uint32_t s2c_check_end()
+{
+  uint32_t ret = 0;
+  for( int i = 0; i < s2c_func_cnt; i++ ) {
+    ret += s2c_func_table[i].end_flag;
+  }
+  return ret;
 }
 
 #endif

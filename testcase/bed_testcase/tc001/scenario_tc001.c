@@ -3,7 +3,7 @@
 static FILE *fp = NULL;
 static char filepath[] = "testcase/bed_testcase/tc001/dff_data.txt";
 
-uint32_t dff_get_data( pkt_s *pkt )
+int dff_get_data( pkt_s *pkt )
 {
   uint32_t data;
   debug_printf("dff_get_data called.");
@@ -11,7 +11,7 @@ uint32_t dff_get_data( pkt_s *pkt )
   if( fp == NULL ) {
     if(( fp = fopen(filepath,"r")) == NULL ) {
       printf("Error: Cannot open file(%s).",filepath);
-      ret = 2;
+      ret = -2;
     } else {
       debug_printf("Info: open file(%s) ok.",filepath);
     }
@@ -19,8 +19,6 @@ uint32_t dff_get_data( pkt_s *pkt )
   if( ret == 0 ) {
     if((ret = fscanf( fp, "%8x", pkt->data )) != EOF) {
       debug_printf("get data:%08x",pkt->data[0]);
-    } else {
-      ret = 1; // EOF
     }
   }
   return ret;
@@ -29,7 +27,7 @@ uint32_t dff_get_data( pkt_s *pkt )
 int scenario()
 {
   unsigned int ret = 0;
-  ret = s2c_c_func_setup( 1, 0, dff_get_data );
+  ret = s2c_c_func_setup( 1, 0, 1, dff_get_data );
   printf("Hello, scenario_tc001!\n");
   return 0;
 }

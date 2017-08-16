@@ -23,12 +23,15 @@ module dff_top;
    
    logic din;
    logic dout;
-
+   uint32_t ret;
+   
    initial begin
       `debug_printf(( "scenario call." ));
       scenario();
-      
-      #100 $finish;
+      while( s2cif.check_end() != 0 ) begin
+	 #(10); // recheck wait
+      end
+      $finish;
    end
 
    drv_dff #( .id(1) )

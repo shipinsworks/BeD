@@ -18,13 +18,6 @@ interface s2cif();
       req = 0;
    end
    
-   task automatic get_data( inout pkt_s pkt );
-      if( req == 1 ) @( negedge req ); // 他のＩＤからのリクエスト完了待ち
-      req = 1;
-      sc_get_data( pkt );
-      req = 0;
-   endtask // get_data
-
    task automatic func_setup( input uint32_t id, input uint32_t fn, output uint32_t ret );
       pkt_s pkt;
       pkt.id = id;
@@ -41,6 +34,10 @@ interface s2cif();
       data = pkt.data;
       ret = pkt.ret;
    endtask // func_call
+
+   function automatic uint32_t check_end();
+      return s2c_check_end();
+   endfunction // check_end
    
 endinterface // s2cif
 

@@ -29,9 +29,7 @@ module drv_dff
       else begin
 	 pkt.id = id;
 	 pkt.fn = 0;
-	 // `debug_printf(("id:%d fn:%d",id,0));
 	 s2cif.func_call( id, 0, ret, pkt.data ); // dff_get_data
-	 // `debug_printf(("data[0]:%08x", pkt.data[0]));
 	 if( ret == 0 ) din_r0 <= pkt.data[0] & 1'b1;
 	 else if( ret == 1 ) din_r0 <= 1'b0; // data end
 	 else begin
