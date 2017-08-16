@@ -5,10 +5,10 @@
 
  `define S2CIF_DATA_SIZE 16
 typedef struct {
-   uint32 id;
-   uint32 fn;
-   uint32 ret;
-   uint32 data[0:`S2CIF_DATA_SIZE-1];
+   uint32_t id;
+   uint32_t fn;
+   uint32_t ret;
+   uint32_t data[0:`S2CIF_DATA_SIZE-1];
 } pkt_s;
 
 interface s2cif();
@@ -25,7 +25,7 @@ interface s2cif();
       req = 0;
    endtask // get_data
 
-   task automatic func_setup( input uint32 id, input uint32 fn, output uint32 ret );
+   task automatic func_setup( input uint32_t id, input uint32_t fn, output uint32_t ret );
       pkt_s pkt;
       pkt.id = id;
       pkt.fn = fn;
@@ -33,7 +33,7 @@ interface s2cif();
       ret = pkt.ret;
    endtask // s2c_s_func_setup
 
-   task automatic func_call( input uint32 id, input uint32 fn, output uint32 ret, output uint32 data[`S2CIF_DATA_SIZE] );
+   task automatic func_call( input uint32_t id, input uint32_t fn, output uint32_t ret, output uint32_t data[`S2CIF_DATA_SIZE] );
       pkt_s pkt;
       pkt.id = id;
       pkt.fn = fn;

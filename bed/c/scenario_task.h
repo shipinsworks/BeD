@@ -23,10 +23,10 @@ extern void sc_get_data( pkt_s *pkt );
 #define BASENAME(p) ((strrchr((p), '/') ? : ((p) - 1)) + 1)
 
 #define printf(...) msg_printf( __VA_ARGS__ )
-void msg_sprintf( char *tmp, char *format, ... )
+void msg_sprintf( char *str, char *format, ... )
 {
   va_list args;
-  // char tmp[1024];
+  char tmp[1024];
   char *p0;
 
   va_start( args, format );
@@ -34,7 +34,7 @@ void msg_sprintf( char *tmp, char *format, ... )
   va_end( args );
   p0 = strrchr( tmp, '\n' );
   if(( p0 != NULL ) & (( p0 - tmp ) == ( strlen( tmp ) -1 ))) *p0 = '\0';
-  // return tmp;
+  strcpy( str, tmp );
 }
 
 void msg_printf( char *format, ... )
@@ -52,10 +52,12 @@ void msg_printf( char *format, ... )
 }
 
 #ifdef DEBUG
-#define debug_printf(...) char tmp[1024], tmp2[1024];	\
+#define debug_printf(...) {\
+  char tmp[1024];\
   msg_sprintf( tmp, __VA_ARGS__ );\
-  msg_sprintf( tmp2, "%s(%1d) %s", BASENAME( __FILE__ ), __LINE__, tmp ); \
-  dbg_printf( tmp2 )
+  msg_sprintf( tmp, "%s(%1d) %s", BASENAME( __FILE__ ), __LINE__, tmp ); \
+  dbg_printf( tmp );\
+}
 #else
 #define debug_printf(...)
 #endif
@@ -186,12 +188,6 @@ void s2c_func_call( pkt_s *pkt )
     ret = 1001;
   }
   pkt->ret = ret;
-}
-
-void sc_get_data( pkt_s *pkt )
-{
-  pkt->data[0] = 0x12345678;
-  pkt->ret = 0;
 }
 
 #endif

@@ -16,7 +16,7 @@ module drv_dff
    logic 	din_r0;
    pkt_s pkt;
    
-   uint32 ret;
+   uint32_t ret;
 
    initial begin
       s2cif.func_setup( id, 0, &ret ); // dff_get_data
