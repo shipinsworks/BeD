@@ -48,6 +48,12 @@ module dff_top;
 	   .din(din),
 	   .dout(dout));
 
+   // 強制的な時間停止
+`ifdef STOP_TIME
+   initial begin
+      #(`STOP_TIME) $finish();
+   end
+`endif
 
 `include "scenario_task.svh"
 `include "dpi-c.svh"
