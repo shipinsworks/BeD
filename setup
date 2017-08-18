@@ -1,4 +1,4 @@
 # BeD setup
 BED_INSDIR=$PWD
-export XV_PATH=/opt/Xilinx/Vivado/2017.1
+export XV_PATH=/opt/Xilinx/Vivado/2017.2
 export PATH=${XV_PATH}/bin:${BED_INSDIR}/bed/bin:$PATH
