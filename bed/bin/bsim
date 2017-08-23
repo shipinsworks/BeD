@@ -78,7 +78,7 @@ for OPT in "$@"; do
 	    break
 	    ;;
 	-*)
-	    echo "${CMDNAME}: illegal option -- `$(echo $1 | sed 's/^-*//')`" 1>&2
+	    echo "${CMDNAME}: illegal option -- '$(echo $1 | sed 's/^-*//')'" 1>&2
 	    exit 1
 	    ;;
 	*)
