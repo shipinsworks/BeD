@@ -11,8 +11,12 @@ Usage: ${CMDNAME} [options] testcase_directory
     -h                  : help
     -p <project_file>   : RTL project file
     -t <testbench_file> : testbench SystemVerilog file
+    -w                  : wave on
   examples
     ${CMDNAME} -h
+    ${CMDNAME} -p dff.prj
+    ${CMDNAME} -t tb/dff_top.sv testcase/bed_testcase/tc001
+    ${CMDNAME} -p dff.prj -t tb/dff_top.sv tescase/bed_testcase/tc001
 EOF
 }
 
@@ -29,6 +33,8 @@ XSC_OPTS="--additional_option -Ibed/c"
 XVLOG_OPTS="--nolog"
 XELAB_OPTS="--nolog --sv_lib dpi --lib ${WORKLIB}"
 XSIM_OPTS="--nolog"
+WAVE_ON=0
+WDB_FILE=""
 
 E_FLAG=0
 for OPT in "$@"; do
@@ -71,6 +77,10 @@ for OPT in "$@"; do
 		XSC_OPTS="${XSC_OPTS} --additional_option -D${2}"
 		shift 2
 	    fi
+	    ;;
+	'-w'|'--wave')
+	    WAVE_ON=1
+	    shift 1
 	    ;;
  	'--'|'-')
 	    shift 1
@@ -229,11 +239,26 @@ elabolate()
 simulation()
 {
     RUN_TCL="${TESTCASE_DIR}/sim/run.tcl"
-    echo "run -all; quit" > ${RUN_TCL}
+    if [ "${WAVE_ON}" -eq 1 ]; then
+	WAVE_TCL="${TESTCASE_DIR}/wave.tcl"
+	if [ -e "${WAVE_TCL}" ]; then
+	    cat ${WAVE_TCL} > ${RUN_TCL}
+	    echo "run -all; quit" >> ${RUN_TCL}
+	else
+	    echo "log_wave -r /; run -all; quit" > ${RUN_TCL}
+	fi
+	WDB_FILE="-wdb ${TESTCASE_DIR}/sim/wave.wdb"
+	WDB_OPEN_TCL="${TESTCASE_DIR}/sim/wave_open.tcl"
+	echo "current_fileset" > ${WDB_OPEN_TCL}
+	echo "open_wave_database ${WDB_FILE}" >> ${WDB_OPEN_TCL}
+	echo "add_wave /DUT" >> ${WDB_OPEN_TCL}
+    else
+	echo "run -all; quit" > ${RUN_TCL}
+    fi
     local logfile="${TESTCASE_DIR}/sim/sim.log"
     echo "===== Simulation start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
-    echo "${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
-    ${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
+    echo "${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${WDB_FILE} ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
+    ${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${WDB_FILE} ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
     if [ -e ${logfile} -a $( grep -e "ERROR:" ${logfile} | wc -l) -ne 0 ]; then
 	exit 1
     fi
@@ -262,6 +287,9 @@ if [ ! -z "${TESTBENCH_FILE}" ]; then
 fi
 # エラボレート
 if [ ! -z "${TESTCASE_DIR}" ] && [ ! -z "${TESTBENCH_FILE}" ]; then
+    if [ "${WAVE_ON}" -eq 1 ]; then
+	XELAB_OPTS="${XELAB_OPTS} --debug typical"
+    fi
     elabolate
 fi
 # シミュレート
