@@ -27,7 +27,9 @@ Xilinx Vivado WebPack
 
 ## Installation
 
-    $ export BED_INSDIR=/BeD_install_dir
+    $ git clone https://github.com/shipinsworks/BeD.git BeD
+    $ cd BeD
+    $ export BED_INSDIR=$(pwd)
     $ export XV_PATH=/opt/Xilinx/Vivda/2017.2
     $ export PATH=${XV_PATH}/bin:${BED_INSDIR}/bed/bin:${PATH}
 
