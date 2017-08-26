@@ -288,7 +288,7 @@ fi
 # エラボレート
 if [ ! -z "${TESTCASE_DIR}" ] && [ ! -z "${TESTBENCH_FILE}" ]; then
     if [ "${WAVE_ON}" -eq 1 ]; then
-	XELAB_OPTS="${XELAB_OPTS} --debug typical"
+	XELAB_OPTS="${XELAB_OPTS} --debug wave"
     fi
     elabolate
 fi

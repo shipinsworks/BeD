@@ -1,0 +1,92 @@
+#!/bin/bash
+# -*- coding: utf-8-unix -*-
+CMDNAME=$(basename $0)
+
+usage()
+{
+    cat <<EOF
+Usage: ${CMDNAME} [options] wdb_file
+  options
+    -h            : help
+    -t <tcl_file> : tcl file
+EOF
+}
+
+# setup
+PARAM=""
+E_FLAG=0
+WDB_FILE=""
+WDB_TCL=""
+
+# command line check
+for OPT in "$@"; do
+    case "${OPT}" in
+	'-h'|'--help')
+	    usage
+	    exit 0
+	    ;;
+	'-t'|'--tcl')
+	    if [ -z "$2" ] || [[ "$2" =~ ^-+ ]]; then
+     		echo "${PROGNAME}: option requires an argument -- $1" 1>&2
+		E_FLAG=1
+		shift 1
+	    else
+		WDB_TCL="$2"
+		shift 2
+	    fi
+	    ;;
+ 	'--'|'-')
+	    shift 1
+	    PARAM="$@"
+	    break
+	    ;;
+	-*)
+	    echo "${CMDNAME}: illegal option -- '$(echo $1 | sed 's/^-*//')'" 1>&2
+	    exit 1
+	    ;;
+	*)
+	    if [ ! -z "$1" ] && [[ ! "$1" =~ ^-+ ]]; then
+		PARAM="$1"
+		shift 1
+	    fi
+	    ;;
+    esac	
+done
+
+if [ -z "${WDB_TCL}" ]; then
+    if [ -z "${PARAM}" ]; then
+	# TCLファイルが無い場合、wdbの指定が必要
+	echo "${CMDNAME}: If there is no TCL file, wdb file is necessary." 1>&2
+	echo "Try '${CMDNAME} --help' for more information." 1>&2
+	exit 1
+    else
+	WDB_FILE="${PARAM}"
+	if [ ! -r "${WDB_FILE}" ]; then
+	    echo "Error: Not found wdb file ( ${WDB_FILE} )."
+	    exit 1
+	fi
+    fi
+else
+    if [ ! -z "${PARAM}" ]; then
+	# TCLファイルがある場合、WDBの指定は不要
+	echo "${CMDNAME}: If there is a TCL file, the wdb file is unnecessary." 1>&2
+	echo "Try '${CMDNAME} --help' for more information." 1>&2
+	exit 1
+    fi
+fi
+
+# run
+if [ -z "${WDB_TCL}" ]; then
+    WORK_TCL=$(mktemp -t wdb_view.XXXXXX)
+    cat <<EOF > ${WORK_TCL}
+current_fileset
+open_wave_database ${WDB_FILE}
+EOF
+    cat ${WORK_TCL}
+    vivado -source ${WORK_TCL}
+    rm ${WORK_TCL}
+else
+    vivado -source ${WDB_TCL}
+fi
+	
+	 
