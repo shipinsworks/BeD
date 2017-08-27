@@ -28,9 +28,10 @@ module dff_top;
    initial begin
       `debug_printf(( "scenario call." ));
       scenario();
-      while( s2cif.check_end() != 0 ) begin
+      while(( ret = s2cif.check_end()) == 0 ) begin
 	 #(10); // recheck wait
       end
+      `debug_printf(("check_end ret:%d",ret));
       $finish;
    end
 

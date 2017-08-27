@@ -30,7 +30,11 @@ module drv_dff
 	 pkt.id = id;
 	 pkt.fn = 0;
 	 s2cif.func_call( id, 0, ret, pkt.data ); // dff_get_data
-	 if( ret == 0 ) din_r0 <= pkt.data[0] & 1'b1;
+	 `debug_printf(("func_call called: ret:%d",ret));
+	 if( ret == 0 ) begin
+	    din_r0 <= pkt.data[0] & 1'b1;
+	    `debug_printf(("din_r0:%d",din_r0));
+	 end
 	 else if( ret == 1 ) din_r0 <= 1'b0; // data end
 	 else begin
 	    `error_printf(("ret:%d", ret));

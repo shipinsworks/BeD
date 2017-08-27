@@ -64,11 +64,11 @@ void msg_printf( char *format, ... )
 #define S2C_FUNC_SIZE 256
 typedef struct {
   uint32_t id; // id!=0の時データが有効
-  uint32_t fn;
-  uint32_t s_enable;
-  uint32_t c_enable;
-  uint32_t end_flag;
-  uint32_t (*func_ptr)( pkt_s *pkt );
+  uint32_t fn; // function no.
+  uint32_t s_enable; // logic side setup 1:OK
+  uint32_t c_enable; // scenario side setup 1:OK
+  uint32_t end_flag; // 0: not end, 1: end of data 2: always end
+  uint32_t (*func_ptr)( pkt_s *pkt ); // function pointer
 } func_s;
 
 static func_s s2c_func_table[S2C_FUNC_SIZE];
@@ -90,7 +90,7 @@ void s2c_s_func_setup( pkt_s *pkt )
 	 ( s2c_func_table[i].fn == pkt->fn ) &&
 	 ( s2c_func_table[i].c_enable != 0 )) {
 	s2c_func_table[i].s_enable = 1;
-	s2c_func_table[i].end_flag = 0;
+	s2c_func_table[i].end_flag = 0; // 初期化、Sim側からは設定しない
 	debug_printf("s2c_func_table registration OK. C->S id:%d fn:%d",pkt->id, pkt->fn);
 	flag = 1;
       }
@@ -177,10 +177,15 @@ void s2c_func_call( pkt_s *pkt )
       if(( s2c_func_table[i].s_enable == 1 ) &&
 	 ( s2c_func_table[i].c_enable == 1 )) {
 	ret = s2c_func_table[i].func_ptr( pkt );
+	// ret: 0 正常終了,　-1: EOF, >0: 異常終了 
 	debug_printf("s2c_func_table[%d] id:%d fn:%d func called. ret:%d", i, s2c_func_table[i].id, s2c_func_table[i].fn, ret);
-	if( ret <= 0 ) {
-	  s2c_func_table[i].end_flag = 0;
-	  ret = 1;
+	if( s2c_func_table[i].end_flag == 0 ) { 
+	  if( ret == 0 ) {
+	    s2c_func_table[i].end_flag = 0;
+	  } else {
+	    s2c_func_table[i].end_flag = 1;
+	    if( ret < 0 ) ret = 1;
+	  }
 	}
 	flag = 1;
       } else {
