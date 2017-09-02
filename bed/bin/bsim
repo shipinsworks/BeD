@@ -12,11 +12,19 @@ Usage: ${CMDNAME} [options] testcase_directory
     -p <project_file>   : RTL project file
     -t <testbench_file> : testbench SystemVerilog file
     -w                  : wave on
+    -d <macro[=value]>  : macro define
   examples
     ${CMDNAME} -h
+// 3 step
     ${CMDNAME} -p dff.prj
-    ${CMDNAME} -t tb/dff_top.sv testcase/bed_testcase/tc001
+    ${CMDNAME} -t tb/dff_top.sv
+    ${CMDNAME} testcase/bed_testcase/tc001
+// all
     ${CMDNAME} -p dff.prj -t tb/dff_top.sv tescase/bed_testcase/tc001
+// testbench compile & sim run
+    ${CMDNAME} -t tb/dff_top.sv testcase/bed_testcase/tc001
+// modified scenario & sim run 
+    ${CMDNAME} testcase/bed_testcase/tc001
 EOF
 }
 
@@ -100,15 +108,20 @@ for OPT in "$@"; do
     esac	
 done
 
-# RTLプロジェクトファイル指定とテストケースディレクトリ指定のどちらかがなければならない
-if [ -z "${RTL_PRJ}" ] && [ -z "${param}" ] && [ -z "${TESTBENCH_FILE}" ]; then
-    echo "${CMDNAME}: too few arguments" 1>&2
-    echo "Try '${CMDNAME} --help' for more information." 1>&2
-    exit 1
+# 指定ディレクトリの存在確認
+if [ ! -z "${param}" ] ; then
+    if [ ! -d "${param}" ]; then
+	echo "Error: 指定された${param}は、ディレクトリではない"
+	E_FLAG=1
+    fi
+    TESTCASE_DIR=$( cd ${param}; pwd )
 fi
 
-if [ ! -z "${param}" ]; then
-    TESTCASE_DIR=$( cd ${param}; pwd )
+# RTLプロジェクトファイル指定とテストケースディレクトリ指定のどちらかがなければならない
+if [ -z "${RTL_PRJ}" ] && [ -z "${TESTCASE_DIR}" ] && [ -z "${TESTBENCH_FILE}" ]; then
+    echo "${CMDNAME}: too few arguments" 1>&2
+    echo "Try '${CMDNAME} --help' for more information." 1>&2
+    E_FLAG=1
 fi
 
 # 引数解析エラー
@@ -117,20 +130,15 @@ if [ "${E_FLAG}" -eq 1 ]; then
     exit 1
 fi
 
-# テストケース、シナリオの存在確認
+# シナリオの存在確認
 if [ ! -z "${TESTCASE_DIR}" ]; then
-    if [ ! -d "${TESTCASE_DIR}" ]; then
-	echo "Error: 指定された${TESTCASE_DIR}は、ディレクトリではない"
+    SNAP_SHOT=$( echo $( cd ${TESTCASE_DIR};pwd ) | awk -F "/" '{ print $(NF-1)"_"$(NF) }')
+    # TESTCASE_DIR中にシナリオが存在することの確認
+    # シナリオファイルは"scenario"で始まり、拡張子が".c"であること
+    SCENARIO_FILE=`find ${TESTCASE_DIR} -maxdepth 1 -name "scenario*.c" -prune -printf "%f"`
+    if [ ! -z "${TESTCASE_DIR}" ] && [ -z "${SCENARIO_FILE}" ]; then
+	echo "Error: シナリオ記述がTESTCASE_DIR(${TESTCASE_DIR})中に無い"
 	E_FLAG=1
-    else
-	SNAP_SHOT=$( echo $( cd ${TESTCASE_DIR};pwd ) | awk -F "/" '{ print $(NF-1)"_"$(NF) }')
-	# TESTCASE_DIR中にシナリオが存在することの確認
-	# シナリオファイルは"scenario"で始まり、拡張子が".c"であること
-	SCENARIO_FILE=`find ${TESTCASE_DIR} -maxdepth 1 -name "scenario*.c" -prune -printf "%f"`
-	if [ ! -z "${TESTCASE_DIR}" ] && [ -z "${SCENARIO_FILE}" ]; then
-	    echo "Error: シナリオ記述がTESTCASE_DIR(${TESTCASE_DIR})中に無い"
-	    E_FLAG=1
-	fi
     fi
 fi
 
