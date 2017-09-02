@@ -5,7 +5,7 @@
    import "DPI-C" function uint32_t s2c_check_end();
    import "DPI-C" task s2c_s_func_setup( inout pkt_s pkt );
    import "DPI-C" task s2c_func_call( inout pkt_s pkt );
-   export "DPI-C" task cs_printf;
-   export "DPI-C" task dbg_printf;
+   export "DPI-C" function cs_printf;
+   export "DPI-C" function dbg_printf;
    
 `endif
