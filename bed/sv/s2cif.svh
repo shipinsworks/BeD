@@ -12,11 +12,6 @@ typedef struct {
 } pkt_s;
 
 interface s2cif();
-   bit 	       req;
-   
-   initial begin
-      req = 0;
-   end
    
    task automatic func_setup( input uint32_t id, input uint32_t fn, output uint32_t ret );
       pkt_s pkt;
@@ -35,9 +30,13 @@ interface s2cif();
       ret = pkt.ret;
    endtask // func_call
 
-   function automatic uint32_t check_end();
-      return s2c_check_end();
-   endfunction // check_end
+   task automatic check_end( output uint32_t ret );
+      pkt_s pkt;
+      pkt.id = 0;
+      pkt.fn = 2;
+      s2c_check_end( pkt );
+      ret = pkt.ret;
+   endtask // check_end
    
 endinterface // s2cif
 

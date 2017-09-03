@@ -202,13 +202,13 @@ void s2c_func_call( pkt_s *pkt )
   pkt->ret = ret;
 }
 
-uint32_t s2c_check_end()
+void s2c_check_end( pkt_s *pkt )
 {
   uint32_t ret = 0;
   for( int i = 0; i < s2c_func_cnt; i++ ) {
     ret += s2c_func_table[i].end_flag;
   }
-  return ret;
+  pkt->ret = ret;
 }
 
 #endif
