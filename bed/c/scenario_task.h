@@ -15,8 +15,9 @@ typedef struct {
   uint32_t data[S2CIF_DATA_SIZE];
 } pkt_s;
 
-extern void cs_printf( char *str );
-extern void dbg_printf( char *str );
+extern void c2s_printf( char *str );
+extern void c2s_debug_printf( char *str );
+extern void c2s_error_printf( char *str );
 
 #define BASENAME(p) ((strrchr((p), '/') ? : ((p) - 1)) + 1)
 
@@ -46,7 +47,7 @@ void msg_printf( char *format, ... )
   va_end( args );
   p0 = strrchr( tmp, '\n' );
   if(( p0 != NULL ) & (( p0 - tmp ) == ( strlen( tmp ) -1 ))) *p0 = '\0';
-  cs_printf( tmp );
+  c2s_printf( tmp );
 }
 
 #ifdef DEBUG
@@ -54,11 +55,18 @@ void msg_printf( char *format, ... )
   char tmp[1024];\
   msg_sprintf( tmp, __VA_ARGS__ );\
   msg_sprintf( tmp, "%s(%1d) %s", BASENAME( __FILE__ ), __LINE__, tmp ); \
-  dbg_printf( tmp );\
+  c2s_debug_printf( tmp );\
 }
 #else
 #define debug_printf(...)
 #endif
+
+#define error_printf(...) {\
+    char tmp[1024];				\
+    msg_sprintf( tmp, __VA_ARGS__ );					\
+    msg_sprintf( tmp, "%s(%1d) %s", BASENAME( __FILE__ ), __LINE__, tmp ); \
+    c2s_error_printf( tmp );							\
+}
 
 // Sim側マスタの要求関数の登録構造体
 #define S2C_FUNC_SIZE 256
@@ -98,7 +106,7 @@ void s2c_s_func_setup( pkt_s *pkt )
       if(( s2c_func_table[i].id == pkt->id ) &&
 	 ( s2c_func_table[i].fn == pkt->fn ) &&
 	 ( s2c_func_table[i].c_enable != 0 )) {
-	printf("Error: Sim側マスタの要求関数のSim側からの多重登録");
+	error_printf("Error: Sim側マスタの要求関数のSim側からの多重登録");
 	ret = 1002;
 	flag = 1;
       }
@@ -115,7 +123,7 @@ void s2c_s_func_setup( pkt_s *pkt )
       debug_printf("s2c_func_table registration OK. S id:%d fn:%d",pkt->id, pkt->fn);
       s2c_func_cnt++;
     } else {
-      printf("Error: Sim側マスタの要求関数の登録数オーバーフロー");
+      error_printf("Error: Sim側マスタの要求関数の登録数オーバーフロー");
       ret = 1003;
     }
   }
@@ -142,7 +150,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t
       if(( s2c_func_table[i].id == id ) &&
 	 ( s2c_func_table[i].fn == fn ) &&
 	 ( s2c_func_table[i].s_enable != 0 )) {
-	printf("Error: Sim側マスタの要求関数のC側からの多重登録");
+	error_printf("Error: Sim側マスタの要求関数のC側からの多重登録");
 	ret = 1005;
 	flag = 1;
       }
@@ -159,7 +167,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t
       debug_printf("s2c_func_setup registration OK. C id:%d fn:%d", id, fn);
       s2c_func_cnt++;
     } else {
-      printf("Error: Sim側マスタの要求関数の登録数オーバーフロー");
+      error_printf("Error: Sim側マスタの要求関数の登録数オーバーフロー");
       ret = 1006;
     }
   }
@@ -188,14 +196,14 @@ void s2c_func_call( pkt_s *pkt )
 	}
 	flag = 1;
       } else {
-	printf("Error: Sim側マスタの要求関数の設定不具合有り。 S:%1d C:%1d",s2c_func_table[i].s_enable,s2c_func_table[i].c_enable);
+	error_printf("Error: Sim側マスタの要求関数の設定不具合有り。 S:%1d C:%1d",s2c_func_table[i].s_enable,s2c_func_table[i].c_enable);
 	ret = 1000;
 	flag = 1;
       }
     }
   }
   if( flag == 0 ) {
-    printf("Error: Sim側マスタの要求関数が未登録。id:%d fn:%d", pkt->id, pkt->fn);
+    error_printf("Error: Sim側マスタの要求関数が未登録。id:%d fn:%d", pkt->id, pkt->fn);
     ret = 1001;
   }
   pkt->ret = ret;
