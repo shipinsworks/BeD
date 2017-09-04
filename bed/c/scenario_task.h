@@ -9,10 +9,10 @@
 // Sim側との転送パケット
 #define S2CIF_DATA_SIZE 16
 typedef struct {
-   uint32_t id;
-   uint32_t fn;
-   uint32_t ret;
-   uint32_t data[S2CIF_DATA_SIZE];
+  uint32_t id;
+  uint32_t fn;
+  int ret;
+  uint32_t data[S2CIF_DATA_SIZE];
 } pkt_s;
 
 extern void cs_printf( char *str );
@@ -67,7 +67,7 @@ typedef struct {
   uint32_t fn; // function no.
   uint32_t s_enable; // logic side setup 1:OK
   uint32_t c_enable; // scenario side setup 1:OK
-  uint32_t end_flag; // 0: not end, 1: end of data 2: always end
+  uint32_t end_flag; // 0: not end, 1: end
   uint32_t (*func_ptr)( pkt_s *pkt ); // function pointer
 } func_s;
 
@@ -82,7 +82,7 @@ uint32_t null_func()
 // Sim側マスタの要求関数の登録（Sim側からの初期設定）
 void s2c_s_func_setup( pkt_s *pkt )
 {
-  uint32_t ret = 0;
+  int ret = 0;
   int flag = 0;
   for( int i = 0; i < s2c_func_cnt; i++ ) {
     if( flag == 0 ) {
@@ -99,7 +99,7 @@ void s2c_s_func_setup( pkt_s *pkt )
 	 ( s2c_func_table[i].fn == pkt->fn ) &&
 	 ( s2c_func_table[i].c_enable != 0 )) {
 	printf("Error: Sim側マスタの要求関数のSim側からの多重登録");
-	ret = 1;
+	ret = 1002;
 	flag = 1;
       }
     }
@@ -116,7 +116,7 @@ void s2c_s_func_setup( pkt_s *pkt )
       s2c_func_cnt++;
     } else {
       printf("Error: Sim側マスタの要求関数の登録数オーバーフロー");
-      ret = 1;
+      ret = 1003;
     }
   }
   pkt->ret = ret;
@@ -125,7 +125,7 @@ void s2c_s_func_setup( pkt_s *pkt )
 // Sim側マスタの要求関数の登録（C側からの初期設定）
 uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t (*func_ptr)( pkt_s *pkt ) )
 {
-  uint32_t ret = 0;
+  int ret = 0;
   int flag = 0;
   for( int i = 0; i < s2c_func_cnt; i++ ) {
     if( flag == 0 ) {
@@ -143,7 +143,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t
 	 ( s2c_func_table[i].fn == fn ) &&
 	 ( s2c_func_table[i].s_enable != 0 )) {
 	printf("Error: Sim側マスタの要求関数のC側からの多重登録");
-	ret = 1;
+	ret = 1005;
 	flag = 1;
       }
     }
@@ -160,7 +160,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t
       s2c_func_cnt++;
     } else {
       printf("Error: Sim側マスタの要求関数の登録数オーバーフロー");
-      ret = 2;
+      ret = 1006;
     }
   }
   return ret;
@@ -177,14 +177,13 @@ void s2c_func_call( pkt_s *pkt )
       if(( s2c_func_table[i].s_enable == 1 ) &&
 	 ( s2c_func_table[i].c_enable == 1 )) {
 	ret = s2c_func_table[i].func_ptr( pkt );
-	// ret: 0 正常終了,　-1: EOF, >0: 異常終了 
+	// ret: 0 正常終了,　<0: EOD/NotOpen, >0: 異常終了 
 	debug_printf("s2c_func_table[%d] id:%d fn:%d func called. ret:%d", i, s2c_func_table[i].id, s2c_func_table[i].fn, ret);
 	if( s2c_func_table[i].end_flag == 0 ) { 
 	  if( ret == 0 ) {
 	    s2c_func_table[i].end_flag = 0;
 	  } else {
 	    s2c_func_table[i].end_flag = 1;
-	    if( ret < 0 ) ret = 1;
 	  }
 	}
 	flag = 1;
@@ -204,11 +203,15 @@ void s2c_func_call( pkt_s *pkt )
 
 void s2c_check_end( pkt_s *pkt )
 {
-  uint32_t ret = 0;
+  int ret = 0;
   for( int i = 0; i < s2c_func_cnt; i++ ) {
     ret += s2c_func_table[i].end_flag;
   }
-  pkt->ret = ret;
+  if( ret < s2c_func_cnt ) {
+    pkt->ret = 0;
+  } else {
+    pkt->ret = 1;
+  }
 }
 
 #endif

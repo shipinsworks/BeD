@@ -16,7 +16,7 @@ module drv_dff
    logic 	din_r0;
    pkt_s pkt;
    
-   uint32_t ret;
+   int ret;
 
    initial begin
       s2cif.func_setup( id, 0, &ret ); // dff_get_data
@@ -35,7 +35,7 @@ module drv_dff
 	    din_r0 <= pkt.data[0] & 1'b1;
 	    `debug_printf(("din_r0:%d",din_r0));
 	 end
-	 else if( ret == 1 ) din_r0 <= 1'b0; // data end
+	 else if( ret < 0 ) din_r0 <= 1'b0; // data end
 	 else begin
 	    `error_printf(("ret:%d", ret));
 	    #1 $finish();
