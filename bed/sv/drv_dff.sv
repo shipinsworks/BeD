@@ -43,4 +43,6 @@ module drv_dff
       end
    end
 
+   assign din = din_r0;
+   
 endmodule // drv_dff

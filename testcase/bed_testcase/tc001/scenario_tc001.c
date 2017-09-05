@@ -25,10 +25,9 @@ int dff_get_data( pkt_s *pkt )
   return ret;
 }
 
-int scenario()
+void scenario()
 {
   unsigned int ret = 0;
   ret = s2c_c_func_setup( 1, 0, 0, dff_get_data );
   printf("Hello, scenario_tc001!\n");
-  return 0;
 }
