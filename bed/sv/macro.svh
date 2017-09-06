@@ -22,4 +22,24 @@ endfunction // basename
 
 typedef int unsigned uint32_t;
 
+`define S2CIF_DATA_SIZE 16
+typedef struct {
+   uint32_t    id;
+   uint32_t    fn;
+   int 	       ret;
+   uint32_t    data[0:`S2CIF_DATA_SIZE-1];
+} pkt_s;
+
+`define C2SIF_DATA_SIZE 16
+typedef struct {
+   uint32_t    id;
+   uint32_t    fn;
+   int 	       ret;
+   uint32_t    addr;
+   uint32_t    size;
+   uint32_t    data[`C2SIF_DATA_SIZE];
+} c2sif_pkt_s;
+
+
+
 `endif

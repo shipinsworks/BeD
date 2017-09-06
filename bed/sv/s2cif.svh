@@ -3,14 +3,6 @@
 
  `include "macro.svh"
 
- `define S2CIF_DATA_SIZE 16
-typedef struct {
-   uint32_t id;
-   uint32_t fn;
-   int ret;
-   uint32_t data[0:`S2CIF_DATA_SIZE-1];
-} pkt_s;
-
 interface s2cif();
    
    task automatic func_setup( input uint32_t id, input uint32_t fn, output int ret );
