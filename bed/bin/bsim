@@ -15,15 +15,14 @@ Usage: ${CMDNAME} [options] testcase_directory
     -d <macro[=value]>  : macro define
   examples
     ${CMDNAME} -h
-// 3 step
+// 2 step
     ${CMDNAME} -p dff.prj
-    ${CMDNAME} -t tb/dff_top.sv
-    ${CMDNAME} testcase/bed_testcase/tc001
+    ${CMDNAME} -t tb/dff_top.sv testcase/bed_testcase/tc001
 // all
     ${CMDNAME} -p dff.prj -t tb/dff_top.sv tescase/bed_testcase/tc001
-// testbench compile & sim run
+// modified testbench or scenario, testbench/scenario compile & sim run
     ${CMDNAME} -t tb/dff_top.sv testcase/bed_testcase/tc001
-// modified scenario & sim run 
+// after sim run, modified scenario & sim run
     ${CMDNAME} testcase/bed_testcase/tc001
 EOF
 }
