@@ -9,9 +9,9 @@ Basic Verification Environment using DPI-C
 ## Features
 
 * ＤＰＩーＣインタフェースの定型パケット化により、ＦａｔａｌやＩｎｔｅｒｎａｌの発生を低減している。
+* Ｃ言語からのテスト情報投入も、論理要求によるテスト情報投入できる。
 * ＣＵＩバッチ処理により論理検証を実行できる。
 * Ｃ言語の乱数を使用してＵＶＭ同様の制限付き乱数生成テストケースを実現できる。
-* Ｃ言語からのテスト情報投入も、論理要求によるテスト情報投入できる。
 
 ## Requirement
 
@@ -20,12 +20,24 @@ Xilinx Vivado WebPack
 ## Usage
 
     $ bsim -h
+
+### 2 step
+
     $ bsim -p dff.prj
-    $ bsim -t tb/dff_top.sv
-    $ bsim -p dff.prj -t tb/dff_top.sv testcase/bed/testcase/tc001
-    $ bsim -p dff.prj -t tb/dff_top.sv
     $ bsim -t tb/dff_top.sv testcase/bed/testcase/tc001
 
+### all
+
+    $ bsim -p dff.prj -t tb/dff_top.sv testcase/bed/testcase/tc001
+
+### modified testbench or scenario, testbench/scenario compile & sim run
+
+    $ bsim -t tb/dff_top.sv testcase/bed/testcase/tc001
+
+### after sim run, modified scenario & sim run
+
+    $ bsim testcase/bed/testcase/tc001
+    
 ## Installation
 
     $ git clone https://github.com/shipinsworks/BeD.git BeD
