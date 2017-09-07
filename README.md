@@ -20,22 +20,22 @@ Xilinx Vivado WebPack
 ## Usage
 
     $ bsim -h
-
-### 2 step
+    
+* 2 step
 
     $ bsim -p dff.prj
     $ bsim -t tb/dff_top.sv testcase/bed/testcase/tc001
 
-### all
+* all
 
     $ bsim -p dff.prj -t tb/dff_top.sv testcase/bed/testcase/tc001
-
-### modified testbench or scenario, testbench/scenario compile & sim run
-
+    
+ * modified testbench or scenario, testbench/scenario compile & sim run
+ 
     $ bsim -t tb/dff_top.sv testcase/bed/testcase/tc001
-
-### after sim run, modified scenario & sim run
-
+ 
+ * after sim run, modified scenario & sim run
+ 
     $ bsim testcase/bed/testcase/tc001
     
 ## Installation
