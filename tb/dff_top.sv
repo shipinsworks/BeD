@@ -1,5 +1,6 @@
 `include "macro.svh"
 `include "s2cif.svh"
+`include "c2sif.svh"
 `include "drv_dff.sv"
 
 module dff_top;
@@ -20,6 +21,7 @@ module dff_top;
    end
 
    s2cif s2cif();
+   c2sif c2sif();
    
    logic din;
    logic dout;
