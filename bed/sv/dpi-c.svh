@@ -8,6 +8,6 @@
    export "DPI-C" function c2s_printf;
    export "DPI-C" function c2s_debug_printf;
    export "DPI-C" function c2s_error_printf;
-   export "DPI-C" task c2s_send_packet;
+   export "DPI-C" task c2s_write_packet;
    
 `endif

@@ -28,7 +28,7 @@ typedef struct {
 extern void c2s_printf( char *str );
 extern void c2s_debug_printf( char *str );
 extern void c2s_error_printf( char *str );
-extern void c2s_send_packet( c2sif_pkt_s *pkt );
+extern void c2s_write_packet( c2sif_pkt_s *pkt );
 
 #define BASENAME(p) ((strrchr((p), '/') ? : ((p) - 1)) + 1)
 
@@ -246,7 +246,7 @@ void send_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *r
     for( int i=0; i<size; i++ ) {
       pkt.data[i] = data[i];
     }
-    c2s_send_packet( &pkt );
+    c2s_write_packet( &pkt );
     *ret = pkt.ret;
   }
 }

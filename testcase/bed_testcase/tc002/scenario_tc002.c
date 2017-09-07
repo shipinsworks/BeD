@@ -10,11 +10,8 @@ void scenario()
   printf("data[0]: 0x%08x",data[0]);
   send_packet( 1, 0, 0x00000001, 1, &ret, data );
   printf("ret: %d", ret);
-  // pkt.id = 1;
-  // pkt.fn = 0;
-  // pkt.data[0] = 0x00000001;
-  // pkt.addr = 0x00000000;
-  // pkt.size = 1;
-  //  write( 3, 0, &pkt );
-  // debug_printf("ret: %d",pkt.ret);
+  data[0] = 0x89abcdef;
+  printf("data[0]: 0x%08x",data[0]);
+  send_packet( 1, 0, 0x00000002, 1, &ret, data );
+  printf("ret: %d", ret);
 }
