@@ -19,8 +19,10 @@ Xilinx Vivado WebPack
 
 ## Usage
 
+* help
+
     $ bsim -h
-    
+
 * 2 step
 
     $ bsim -p dff.prj
@@ -29,15 +31,15 @@ Xilinx Vivado WebPack
 * all
 
     $ bsim -p dff.prj -t tb/dff_top.sv testcase/bed/testcase/tc001
-    
- * modified testbench or scenario, testbench/scenario compile & sim run
- 
+
+* modified testbench or scenario, testbench/scenario compile & sim run
+
     $ bsim -t tb/dff_top.sv testcase/bed/testcase/tc001
  
- * after sim run, modified scenario & sim run
- 
+* after sim run, modified scenario & sim run
+
     $ bsim testcase/bed/testcase/tc001
-    
+
 ## Installation
 
     $ git clone https://github.com/shipinsworks/BeD.git BeD
