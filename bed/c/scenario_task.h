@@ -15,9 +15,20 @@ typedef struct {
   uint32_t data[S2CIF_DATA_SIZE];
 } pkt_s;
 
+#define C2SIF_DATA_SIZE 16
+typedef struct {
+  uint32_t id;
+  uint32_t fn;
+  int ret;
+  uint32_t addr;
+  uint32_t size;
+  uint32_t data[C2SIF_DATA_SIZE];
+} c2sif_pkt_s;
+    
 extern void c2s_printf( char *str );
 extern void c2s_debug_printf( char *str );
 extern void c2s_error_printf( char *str );
+extern void c2s_send_packet( c2sif_pkt_s *pkt );
 
 #define BASENAME(p) ((strrchr((p), '/') ? : ((p) - 1)) + 1)
 
@@ -219,6 +230,24 @@ void s2c_check_end( pkt_s *pkt )
     pkt->ret = 0;
   } else {
     pkt->ret = 1;
+  }
+}
+
+void send_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *ret, uint32_t data[C2SIF_DATA_SIZE] )
+{
+  c2sif_pkt_s pkt;
+  pkt.id = id;
+  pkt.fn = fn;
+  pkt.addr = addr;
+  pkt.size = size;
+  if( size > C2SIF_DATA_SIZE ) {
+    *ret = 1008; // size over
+  } else {
+    for( int i=0; i<size; i++ ) {
+      pkt.data[i] = data[i];
+    }
+    c2s_send_packet( &pkt );
+    *ret = pkt.ret;
   }
 }
 

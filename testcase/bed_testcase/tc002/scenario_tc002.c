@@ -3,8 +3,13 @@
 
 void scenario()
 {
-  // c2sif_pkt_s pkt;
+  int ret;
+  uint32_t data[C2SIF_DATA_SIZE];
   printf("Hello, scenario_tc002!\n");
+  data[0] = 0x01234567;
+  printf("data[0]: 0x%08x",data[0]);
+  send_packet( 1, 0, 0x00000001, 1, &ret, data );
+  printf("ret: %d", ret);
   // pkt.id = 1;
   // pkt.fn = 0;
   // pkt.data[0] = 0x00000001;

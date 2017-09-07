@@ -37,9 +37,7 @@ typedef struct {
    int 	       ret;
    uint32_t    addr;
    uint32_t    size;
-   uint32_t    data[`C2SIF_DATA_SIZE];
+   uint32_t    data[0:`C2SIF_DATA_SIZE-1];
 } c2sif_pkt_s;
-
-
 
 `endif
