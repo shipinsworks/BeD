@@ -8,10 +8,10 @@ void scenario()
   printf("Hello, scenario_tc002!\n");
   data[0] = 0x01234567;
   printf("data[0]: 0x%08x",data[0]);
-  send_packet( 1, 0, 0x00000001, 1, &ret, data );
+  write_packet( 1, 0, 0x00000001, 1, &ret, data );
   printf("ret: %d", ret);
   data[0] = 0x89abcdef;
   printf("data[0]: 0x%08x",data[0]);
-  send_packet( 1, 0, 0x00000002, 1, &ret, data );
+  write_packet( 1, 0, 0x00000002, 1, &ret, data );
   printf("ret: %d", ret);
 }

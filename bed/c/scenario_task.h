@@ -233,7 +233,7 @@ void s2c_check_end( s2cif_pkt_s *pkt )
   }
 }
 
-void send_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *ret, uint32_t data[C2SIF_DATA_SIZE] )
+void write_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *ret, uint32_t data[C2SIF_DATA_SIZE] )
 {
   c2sif_pkt_s pkt;
   pkt.id = id;
