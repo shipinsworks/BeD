@@ -13,6 +13,8 @@ module drv_c2sif
     input logic  dout
     );
 
+   logic 	 din_r0;
+   
    task get_packet();
       forever begin
 	 @( posedge c2sif.req );
@@ -21,7 +23,8 @@ module drv_c2sif
 	 if( c2sif.id == id ) begin
 	    if( c2sif.fn == 0 ) begin // write
 	       `debug_printf(("data: 0x%08x",c2sif.data[0]));
-	       c2sif.ret = 3210;
+	       din_r0 = c2sif.data[0] & 1'b1;
+	       c2sif.ret = 0;
 	       c2sif.ack = 1;
 	       `debug_printf(("set ack: 1"));
 	       @( negedge c2sif.req );
@@ -38,5 +41,7 @@ module drv_c2sif
 	 get_packet();
       join;
    end
+
+   assign din = din_r0;
    
 endmodule // drv_one_signal

@@ -17,6 +17,7 @@ endfunction // error_printf
 `ifdef _C2SIF_SVH_
 task automatic c2s_write_packet( inout c2sif_pkt_s pkt );
    c2sif.write_packet( pkt );
+   `debug_printf(("ret: %d", pkt.ret));
 endtask // c2s_send_packet
 `endif
 

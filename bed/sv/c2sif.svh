@@ -11,14 +11,14 @@ interface c2sif();
    uint32_t fn;
    uint32_t addr;
    uint32_t data[0:`C2SIF_DATA_SIZE-1];
-   uint32_t ret;
+   int ret;
 
    initial begin
       req <= 0;
       ack = 0;
    end
 
-   task write_packet( c2sif_pkt_s pkt );
+   task write_packet( inout c2sif_pkt_s pkt );
       if( ack == 1 ) @( negedge ack );
       `debug_printf(("found ack: 0"));
       id = pkt.id;
@@ -32,6 +32,7 @@ interface c2sif();
       @( posedge ack );
       `debug_printf(("found ack: 1"));
       pkt.ret = ret;
+      `debug_printf(("pkt.ret: %d",pkt.ret));
       req = 0;
       `debug_printf(("set req: 0"));
    endtask // send_packet
