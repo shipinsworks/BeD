@@ -3,7 +3,7 @@
 static FILE *fp = NULL;
 static char filepath[] = "testcase/bed_testcase/tc001/dff_data.txt";
 
-int dff_get_data( pkt_s *pkt )
+int dff_get_data( s2cif_pkt_s *pkt )
 {
   uint32_t data;
   debug_printf("dff_get_data called.");

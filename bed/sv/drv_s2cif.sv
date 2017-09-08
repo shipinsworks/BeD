@@ -1,7 +1,7 @@
 `include "macro.svh"
 `include "s2cif.svh"
 
-module drv_dff
+module drv_s2cif
   #(
     parameter id = 0
     )
@@ -14,7 +14,7 @@ module drv_dff
     );
 
    logic 	din_r0;
-   pkt_s pkt;
+   s2cif_pkt_s pkt;
    
    int ret;
 
@@ -45,4 +45,4 @@ module drv_dff
 
    assign din = din_r0;
    
-endmodule // drv_dff
+endmodule // drv_s2cif

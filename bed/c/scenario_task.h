@@ -13,7 +13,7 @@ typedef struct {
   uint32_t fn;
   int ret;
   uint32_t data[S2CIF_DATA_SIZE];
-} pkt_s;
+} s2cif_pkt_s;
 
 #define C2SIF_DATA_SIZE 16
 typedef struct {
@@ -87,7 +87,7 @@ typedef struct {
   uint32_t s_enable; // logic side setup 1:OK
   uint32_t c_enable; // scenario side setup 1:OK
   uint32_t end_flag; // 0: not end, 1: end
-  uint32_t (*func_ptr)( pkt_s *pkt ); // function pointer
+  uint32_t (*func_ptr)( s2cif_pkt_s *pkt ); // function pointer
 } func_s;
 
 static func_s s2c_func_table[S2C_FUNC_SIZE];
@@ -99,7 +99,7 @@ uint32_t null_func()
 }
 
 // Sim側マスタの要求関数の登録（Sim側からの初期設定）
-void s2c_s_func_setup( pkt_s *pkt )
+void s2c_s_func_setup( s2cif_pkt_s *pkt )
 {
   int ret = 0;
   int flag = 0;
@@ -142,7 +142,7 @@ void s2c_s_func_setup( pkt_s *pkt )
 }
 
 // Sim側マスタの要求関数の登録（C側からの初期設定）
-uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t (*func_ptr)( pkt_s *pkt ) )
+uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t (*func_ptr)( s2cif_pkt_s *pkt ) )
 {
   int ret = 0;
   int flag = 0;
@@ -186,7 +186,7 @@ uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t
 }
 
 // Sim側からのＣ言語要求受付関数の呼び出し
-void s2c_func_call( pkt_s *pkt )
+void s2c_func_call( s2cif_pkt_s *pkt )
 {
   int ret = 0;
   uint32_t flag = 0;
@@ -220,7 +220,7 @@ void s2c_func_call( pkt_s *pkt )
   pkt->ret = ret;
 }
 
-void s2c_check_end( pkt_s *pkt )
+void s2c_check_end( s2cif_pkt_s *pkt )
 {
   int ret = 0;
   for( int i = 0; i < s2c_func_cnt; i++ ) {

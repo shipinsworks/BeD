@@ -1,8 +1,8 @@
 `include "macro.svh"
-`include "drv_dff.sv"
+`include "drv_s2cif.sv"
 `include "s2cif.svh"
 
-module dff_top;
+module dff_s2cif_top;
 
 
    logic clk;
@@ -38,8 +38,8 @@ module dff_top;
       $finish;
    end
 
-   drv_dff #( .id(1) )
-   drv_dff(
+   drv_s2cif #( .id(1) )
+   drv_s2cif(
 	   .s2cif(s2cif),
 	   .clk(clk),
 	   .rst(rst),
@@ -62,4 +62,4 @@ module dff_top;
 `include "scenario_task.svh"
 `include "dpi-c.svh"
    
-endmodule // dff_top
+endmodule // dff_s2cif_top

@@ -11,7 +11,7 @@ else
 fi
 echo ""
 echo "bsim -t tb/dff_top.sv"
-bsim -t tb/dff_top.sv
+bsim -t tb/dff_s2cif_top.sv
 if [ $? == 0 ]; then
     echo "---------- OK"
 else

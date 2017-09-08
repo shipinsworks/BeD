@@ -4,9 +4,9 @@
    import "DPI-C" context task scenario();
 
  `ifdef _S2CIF_SVH_
-   import "DPI-C" task s2c_check_end( inout pkt_s pkt );
-   import "DPI-C" task s2c_s_func_setup( inout pkt_s pkt );
-   import "DPI-C" task s2c_func_call( inout pkt_s pkt );
+   import "DPI-C" task s2c_check_end( inout s2cif_pkt_s pkt );
+   import "DPI-C" task s2c_s_func_setup( inout s2cif_pkt_s pkt );
+   import "DPI-C" task s2c_func_call( inout s2cif_pkt_s pkt );
  `endif
    
    export "DPI-C" function c2s_printf;

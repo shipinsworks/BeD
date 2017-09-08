@@ -28,7 +28,7 @@ typedef struct {
    uint32_t    fn;
    int 	       ret;
    uint32_t    data[0:`S2CIF_DATA_SIZE-1];
-} pkt_s;
+} s2cif_pkt_s;
 
 `define C2SIF_DATA_SIZE 16
 typedef struct {
