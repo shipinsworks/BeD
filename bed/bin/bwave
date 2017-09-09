@@ -65,12 +65,20 @@ if [ -z "${WDB_TCL}" ]; then
 	    echo "Error: Not found wdb file ( ${WDB_FILE} )."
 	    exit 1
 	fi
+	if [[ ! "${WDB_FILE}" =~ \.wdb$ ]]; then
+	    echo "Error: Illegal wave database file ( ${WDB_FILE} )."
+	    exit 1
+	fi
     fi
 else
     if [ ! -z "${PARAM}" ]; then
 	# TCLファイルがある場合、WDBの指定は不要
 	echo "${CMDNAME}: If there is a TCL file, the wdb file is unnecessary." 1>&2
 	echo "Try '${CMDNAME} --help' for more information." 1>&2
+	exit 1
+    fi
+    if [[ ! "${WDB_TCL}" =~ \.tcl$ ]]; then
+	echo "Error: Illegal tcl file ( ${WDB_TCL} )."
 	exit 1
     fi
 fi
