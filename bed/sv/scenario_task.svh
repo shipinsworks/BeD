@@ -18,7 +18,13 @@ endfunction // error_printf
 task automatic c2s_write_packet( inout c2sif_pkt_s pkt );
    c2sif.write_packet( pkt );
    `debug_printf(("ret: %d", pkt.ret));
-endtask // c2s_send_packet
+endtask // c2s_write_packet
+
+task automatic c2s_read_packet( inout c2sif_pkt_s pkt );
+   c2sif.read_packet( pkt );
+   `debug_printf(("ret: %d data[0]: %08x",pkt.ret,pkt.data[0]));
+endtask // c2s_read_packet
+
 `endif
 
 `endif

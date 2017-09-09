@@ -29,6 +29,7 @@ extern void c2s_printf( char *str );
 extern void c2s_debug_printf( char *str );
 extern void c2s_error_printf( char *str );
 extern void c2s_write_packet( c2sif_pkt_s *pkt );
+extern void c2s_read_packet( c2sif_pkt_s *pkt );
 
 #define BASENAME(p) ((strrchr((p), '/') ? : ((p) - 1)) + 1)
 
@@ -247,6 +248,24 @@ void write_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *
       pkt.data[i] = data[i];
     }
     c2s_write_packet( &pkt );
+    *ret = pkt.ret;
+  }
+}
+
+void read_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *ret, uint32_t data[C2SIF_DATA_SIZE] )
+{
+  c2sif_pkt_s pkt;
+  pkt.id = id;
+  pkt.fn = fn;
+  pkt.addr = addr;
+  pkt.size = size;
+  if( size > C2SIF_DATA_SIZE ) {
+    *ret = 1009; // size over
+  } else {
+    c2s_read_packet( &pkt );
+    for( int i=0; i<size; i++ ) {
+      data[i] = pkt.data[i];
+    }
     *ret = pkt.ret;
   }
 }

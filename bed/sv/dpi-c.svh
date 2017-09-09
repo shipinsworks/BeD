@@ -14,6 +14,7 @@
    export "DPI-C" function c2s_error_printf;
 `ifdef _C2SIF_SVH_
    export "DPI-C" task c2s_write_packet;
+   export "DPI-C" task c2s_read_packet;
 `endif
    
 `endif

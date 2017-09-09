@@ -39,7 +39,30 @@ interface c2sif();
       `debug_printf(("set req: 0"));
       @( negedge ack );
       `debug_printf(("found ack: 0"));
-   endtask // send_packet
+   endtask // write_packet
+
+   task read_packet( inout c2sif_pkt_s pkt );
+      if( ack == 1 ) begin
+	 @( negedge ack );
+	 `debug_printf(("found ack: 0"));
+      end
+      id = pkt.id;
+      fn = pkt.fn;
+      addr = pkt.addr;
+      req = 1'b1;
+      `debug_printf(("set req: 1"));
+      @( posedge ack );
+      `debug_printf(("found ack: 1"));
+      for( int i=0; i<`C2SIF_DATA_SIZE; i++ ) begin
+	 pkt.data[i] = data[i];
+      end
+      pkt.ret = ret;
+      `debug_printf(("pkt.ret: %d",pkt.ret));
+      req = 1'b0;
+      `debug_printf(("set req: 0"));
+      @( negedge ack );
+      `debug_printf(("found ack: 0"));
+   endtask // read_packet
    
 endinterface // c2sif
 
