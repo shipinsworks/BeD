@@ -3,7 +3,8 @@
 
 module drv_c2sif
   #(
-    parameter id = 0
+    parameter id = 0,
+    parameter din_delay = 0
     )
    (
     c2sif        c2sif,
@@ -16,7 +17,7 @@ module drv_c2sif
    logic 	 din_r0;
    logic 	 din_r1;
    event 	 push_event;
-   
+
    task get_packet();
       forever begin
 	 @( posedge c2sif.req );
@@ -53,6 +54,6 @@ module drv_c2sif
 	 -> push_event;
       end
    end
-   assign din = din_r1;
+   assign #(din_delay) din = din_r1;
    
 endmodule // drv_one_signal
