@@ -26,13 +26,13 @@ Xilinx Vivado WebPack
 
 * 2 step
 
-    $ bsim -p dff.prj
+    $ bsim -p project/dff.prj
     
     $ bsim -t tb/dff_s2cif_top.sv testcase/bed/testcase/tc001
 
 * all
 
-    $ bsim -p dff.prj -t tb/dff_s2cif_top.sv testcase/bed/testcase/tc001
+    $ bsim -p project/dff.prj -t tb/dff_s2cif_top.sv testcase/bed/testcase/tc001
 
 * modified testbench or scenario, testbench/scenario compile & sim run
 
