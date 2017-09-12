@@ -88,7 +88,7 @@ typedef struct {
   uint32_t s_enable; // logic side setup 1:OK
   uint32_t c_enable; // scenario side setup 1:OK
   uint32_t end_flag; // 0: not end, 1: end
-  uint32_t (*func_ptr)( s2cif_pkt_s *pkt ); // function pointer
+  int (*func_ptr)( s2cif_pkt_s *pkt ); // function pointer
 } func_s;
 
 static func_s s2c_func_table[S2C_FUNC_SIZE];
@@ -144,7 +144,7 @@ void s2c_s_func_setup( s2cif_pkt_s *pkt )
 
 // Sim側マスタの要求関数の登録（C側からの初期設定）
 // 投入データのすべてを転送したい場合、end_flagは0を設定して終了を待たせる
-uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t (*func_ptr)( s2cif_pkt_s *pkt ) )
+int s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, int (*func_ptr)( s2cif_pkt_s *pkt ) )
 {
   int ret = 0;
   int flag = 0;
