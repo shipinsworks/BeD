@@ -8,16 +8,16 @@ void scenario()
   printf("Hello, scenario_tc002!\n");
   data[0] = 0x01234567;
   printf("write data[0]: 0x%08x",data[0]);
-  write_packet( 1, 0, 0x00000001, 1, &ret, data );
+  ret = write_packet( 1, 0, 0x00000001, 1, data );
   printf("ret: %d", ret);
-  read_packet( 1, 1, 0x00000001, 1, &ret, data );
+  ret = read_packet( 1, 1, 0x00000001, 1, data );
   printf("ret: %d", ret);
   printf("read data[0]: 0x%08x",data[0]);
   data[0] = 0xfedcba98;
   printf("write data[0]: 0x%08x",data[0]);
-  write_packet( 1, 0, 0x00000002, 1, &ret, data );
+  ret = write_packet( 1, 0, 0x00000002, 1, data );
   printf("ret: %d", ret);
-  read_packet( 1, 1, 0x00000002, 1, &ret, data );
+  ret = read_packet( 1, 1, 0x00000002, 1, data );
   printf("ret: %d", ret);
   printf("read data[0]: 0x%08x",data[0]);
 }

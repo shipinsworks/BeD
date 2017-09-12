@@ -235,40 +235,44 @@ void s2c_check_end( s2cif_pkt_s *pkt )
   }
 }
 
-void write_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *ret, uint32_t data[C2SIF_DATA_SIZE] )
+int write_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, uint32_t data[C2SIF_DATA_SIZE] )
 {
   c2sif_pkt_s pkt;
+  int ret;
   pkt.id = id;
   pkt.fn = fn;
   pkt.addr = addr;
   pkt.size = size;
   if( size > C2SIF_DATA_SIZE ) {
-    *ret = 1008; // size over
+    ret = 1008; // size over
   } else {
     for( int i=0; i<size; i++ ) {
       pkt.data[i] = data[i];
     }
     c2s_write_packet( &pkt );
-    *ret = pkt.ret;
+    ret = pkt.ret;
   }
+  return ret;
 }
 
-void read_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, int *ret, uint32_t data[C2SIF_DATA_SIZE] )
+int read_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, uint32_t data[C2SIF_DATA_SIZE] )
 {
   c2sif_pkt_s pkt;
+  int ret;
   pkt.id = id;
   pkt.fn = fn;
   pkt.addr = addr;
   pkt.size = size;
   if( size > C2SIF_DATA_SIZE ) {
-    *ret = 1009; // size over
+    ret = 1009; // size over
   } else {
     c2s_read_packet( &pkt );
     for( int i=0; i<size; i++ ) {
       data[i] = pkt.data[i];
     }
-    *ret = pkt.ret;
+    ret = pkt.ret;
   }
+  return ret;
 }
 
 #endif
