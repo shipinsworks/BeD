@@ -143,6 +143,7 @@ void s2c_s_func_setup( s2cif_pkt_s *pkt )
 }
 
 // Sim側マスタの要求関数の登録（C側からの初期設定）
+// 投入データのすべてを転送したい場合、end_flagは0を設定して終了を待たせる
 uint32_t s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, uint32_t (*func_ptr)( s2cif_pkt_s *pkt ) )
 {
   int ret = 0;
@@ -202,7 +203,7 @@ void s2c_func_call( s2cif_pkt_s *pkt )
 	if( s2c_func_table[i].end_flag == 0 ) { 
 	  if( ret == 0 ) {
 	    s2c_func_table[i].end_flag = 0;
-	  } else {
+	  } else { // ret != 0ならば終了可能にする（End of Data　あるいはエラー発生 ）
 	    s2c_func_table[i].end_flag = 1;
 	  }
 	}
@@ -227,10 +228,10 @@ void s2c_check_end( s2cif_pkt_s *pkt )
   for( int i = 0; i < s2c_func_cnt; i++ ) {
     ret += s2c_func_table[i].end_flag;
   }
-  if( ret < s2c_func_cnt ) {
-    pkt->ret = 0;
+  if( ret < s2c_func_cnt ) { // すべての登録関数が終了可能ならば
+    pkt->ret = 0; // 終了可能
   } else {
-    pkt->ret = 1;
+    pkt->ret = 1; // 終了不可
   }
 }
 

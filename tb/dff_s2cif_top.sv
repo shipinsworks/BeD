@@ -30,7 +30,7 @@ module dff_s2cif_top;
       `debug_printf(( "scenario call." ));
       scenario();
       s2cif.check_end( ret );
-      while( ret == 0 ) begin
+      while( ret == 0 ) begin // 完了不可の間、待つ
 	 #(10); // recheck wait
 	 s2cif.check_end( ret );
       end
