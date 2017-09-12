@@ -144,7 +144,7 @@ void s2c_s_func_setup( s2cif_pkt_s *pkt )
 
 // Sim側マスタの要求関数の登録（C側からの初期設定）
 // 投入データのすべてを転送したい場合、end_flagは0を設定して終了を待たせる
-int s2c_c_func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, int (*func_ptr)( s2cif_pkt_s *pkt ) )
+int func_setup( uint32_t id, uint32_t fn, uint32_t end_flag, int (*func_ptr)( s2cif_pkt_s *pkt ) )
 {
   int ret = 0;
   int flag = 0;

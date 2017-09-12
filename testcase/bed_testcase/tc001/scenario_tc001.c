@@ -28,6 +28,6 @@ int dff_get_data( s2cif_pkt_s *pkt )
 void scenario()
 {
   int ret = 0;
-  ret = s2c_c_func_setup( 1, 0, 0, dff_get_data );
+  ret = func_setup( 1, 0, 0, dff_get_data );
   printf("Hello, scenario_tc001!\n");
 }
