@@ -15,15 +15,25 @@ interface s2cif();
       ret = pkt.ret;
    endtask // s2c_s_func_setup
 
-   // 応答関数の呼び出し
-   task automatic func_call( input uint32_t id, input uint32_t fn, output int ret, output uint32_t data[`S2CIF_DATA_SIZE] );
+   // データ要求関数の呼び出し
+   task automatic data_pull_call( input uint32_t id, input uint32_t fn, output int ret, output uint32_t data[`S2CIF_DATA_SIZE] );
       s2cif_pkt_s pkt;
       pkt.id = id;
       pkt.fn = fn;
       s2c_func_call( pkt );
       data = pkt.data;
       ret = pkt.ret;
-   endtask // func_call
+   endtask // data_req_call
+
+   // モニタ関数の呼び出し
+   task automatic data_push_call( input uint32_t id, input uint32_t fn, output int ret, input uint32_t data[`S2CIF_DATA_SIZE] );
+      s2cif_pkt_s pkt;
+      pkt.id = id;
+      pkt.fn = fn;
+      pkt.data = data;
+      s2c_func_call( pkt );
+      ret = pkt.ret;
+   endtask // data_push_call
 
    // 終了チェック
    task automatic check_end( output int ret );
