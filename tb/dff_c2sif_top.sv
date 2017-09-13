@@ -19,6 +19,7 @@ module dff_c2sif_top;
       #25 rst = 1'b0;
    end
 
+   // シナリオ側からのデータ投入インタフェース
    c2sif c2sif();
    
    logic din;
@@ -28,9 +29,11 @@ module dff_c2sif_top;
    initial begin
       `debug_printf(( "scenario call." ));
       scenario();
+      // シナリオからのリターンで終了
       #100 $finish;
    end
 
+   // シナリオからのデータを論理に入力するドライバ
    drv_c2sif #( .id(1), .din_delay(3) )
    drv_c2sif(
 	   .c2sif(c2sif),
@@ -40,6 +43,7 @@ module dff_c2sif_top;
 	   .dout(dout)
 	   );
 
+   // 検証対象論理
    dff DUT(.clk(clk),
 	   .rst(rst),
 	   .din(din),
@@ -52,6 +56,7 @@ module dff_c2sif_top;
    end
 `endif
 
+   // DPI-C用各種定義
 `include "scenario_task.svh"
 `include "dpi-c.svh"
    

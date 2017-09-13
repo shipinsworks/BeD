@@ -20,6 +20,7 @@ module dff_s2cif_top;
       #25 rst = 1'b0;
    end
 
+   // ドライバからシナリオにデータ要求するインタフェース
    s2cif s2cif();
    
    logic din;
@@ -29,15 +30,17 @@ module dff_s2cif_top;
    initial begin
       `debug_printf(( "scenario call." ));
       scenario();
+      // データ要求の応答関数がEODを検出するまで待つ
       s2cif.check_end( ret );
-      while( ret == 0 ) begin // 完了不可の間、待つ
-	 #(10); // recheck wait
+      while( ret == 0 ) begin
+	 #(10); // wait
 	 s2cif.check_end( ret );
       end
       `debug_printf(("check_end ret:%d",ret));
       $finish;
    end
 
+   // シナリオにデータを要求するドライバ
    drv_s2cif #( .id(1) )
    drv_s2cif(
 	   .s2cif(s2cif),
@@ -47,6 +50,7 @@ module dff_s2cif_top;
 	   .dout(dout)
 	   );
 
+   // 検証対象論理
    dff DUT(.clk(clk),
 	   .rst(rst),
 	   .din(din),
@@ -59,6 +63,7 @@ module dff_s2cif_top;
    end
 `endif
 
+   // DPI-C用各種定義
 `include "scenario_task.svh"
 `include "dpi-c.svh"
    

@@ -3,8 +3,10 @@
 
  `include "macro.svh"
 
+// Sim側マスタのインタフェース
 interface s2cif();
    
+   // 応答関数の登録要求
    task automatic func_setup( input uint32_t id, input uint32_t fn, output int ret );
       s2cif_pkt_s pkt;
       pkt.id = id;
@@ -13,6 +15,7 @@ interface s2cif();
       ret = pkt.ret;
    endtask // s2c_s_func_setup
 
+   // 応答関数の呼び出し
    task automatic func_call( input uint32_t id, input uint32_t fn, output int ret, output uint32_t data[`S2CIF_DATA_SIZE] );
       s2cif_pkt_s pkt;
       pkt.id = id;
@@ -22,6 +25,7 @@ interface s2cif();
       ret = pkt.ret;
    endtask // func_call
 
+   // 終了チェック
    task automatic check_end( output int ret );
       s2cif_pkt_s pkt;
       pkt.id = 0;

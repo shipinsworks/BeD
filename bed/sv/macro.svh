@@ -1,6 +1,7 @@
 `ifndef _MACRO_SVH_
  `define _MACRO_SVH_
 
+// 補助関数
 function string basename( string p );
    int i;
    for( i = p.len(); i>=0; i-- ) begin
@@ -12,6 +13,7 @@ function string basename( string p );
    end
 endfunction // basename
 
+// マクロ定義
  `define error_printf( msg ) $display( "[Error   ] %8d : %s(%1d) %s", $stime, basename( `__FILE__ ), `__LINE__, $sformatf msg )
 
 `ifdef DEBUG
@@ -22,6 +24,7 @@ endfunction // basename
 
 typedef int unsigned uint32_t;
 
+// Sim側からシナリオ側への転送パケット
 `define S2CIF_DATA_SIZE 16
 typedef struct {
    uint32_t    id;
@@ -30,6 +33,7 @@ typedef struct {
    uint32_t    data[0:`S2CIF_DATA_SIZE-1];
 } s2cif_pkt_s;
 
+// シナリオ側からSim側への転送パケット
 `define C2SIF_DATA_SIZE 16
 typedef struct {
    uint32_t    id;

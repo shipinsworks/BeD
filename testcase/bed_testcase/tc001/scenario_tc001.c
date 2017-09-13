@@ -1,8 +1,11 @@
 #include "stdio.h"
 #include "scenario.h"
+
+// データファイル
 static FILE *fp = NULL;
 static char filepath[] = "testcase/bed_testcase/tc001/dff_data.txt";
 
+// デーや要求に対する応答関数
 int dff_get_data( s2cif_pkt_s *pkt )
 {
   uint32_t data;
@@ -25,9 +28,12 @@ int dff_get_data( s2cif_pkt_s *pkt )
   return ret;
 }
 
+// シナリオ関数
 void scenario()
 {
   int ret = 0;
   ret = func_setup( 1, 0, 0, dff_get_data );
   printf("Hello, scenario_tc001!\n");
+  // リターンすると通常はシミュレーション停止
+  // 応答関数がEODを検出するまで待つ仕掛けをテストベンチに記述してある。
 }

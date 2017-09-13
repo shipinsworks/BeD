@@ -3,21 +3,27 @@
 
  `include "macro.svh"
 
+// シナリオ側マスタのインタフェース
 interface c2sif();
+   // sim_timeを消費しないでＣ言語側と通信するための２信号
    logic req;
    logic ack;
-   
+   // インタフェースの通信用変数
    uint32_t id;
    uint32_t fn;
    uint32_t addr;
    uint32_t data[0:`C2SIF_DATA_SIZE-1];
    int ret;
 
+   // 通信信号の初期化
    initial begin
       req = 1'b0;
       ack = 1'b0;
    end
 
+   // シナリオからの関数呼び出しは、scenario()関数スコープで実行されるため、
+   // scenario()関数を呼び出したモジュール上の関数のみ
+   // write_packet()関数は、c2s_write_packet()関数を経由して呼び出される
    task write_packet( inout c2sif_pkt_s pkt );
       if( ack == 1 ) begin
 	 @( negedge ack );
@@ -41,6 +47,7 @@ interface c2sif();
       `debug_printf(("found ack: 0"));
    endtask // write_packet
 
+   // read_packet()関数は、c2s_read_packet()関数を経由して呼び出される
    task read_packet( inout c2sif_pkt_s pkt );
       if( ack == 1 ) begin
 	 @( negedge ack );

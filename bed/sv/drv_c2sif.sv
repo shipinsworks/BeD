@@ -1,6 +1,7 @@
 `include "macro.svh"
 `include "c2sif.svh"
 
+// シナリオ側から指示によりデータを投入するドライバモジュール
 module drv_c2sif
   #(
     parameter id = 0,
@@ -20,15 +21,16 @@ module drv_c2sif
    event 	 push_event;
    logic 	 dout_r0;
    event 	 pull_event;
-   
+
+   // シナリオからの指示を処理する関数
    task get_packet();
       forever begin
-	 @( posedge c2sif.req );
+	 @( posedge c2sif.req ); // シナリオ側からの呼び出し待ち
 	 `debug_printf(("found req: 1"));
 	 
 	 if( c2sif.id == id ) begin
 	    case( c2sif.fn )
-	      0 : begin // write
+	      0: begin // write
 		 din_r0 = c2sif.data[0] & 1'b1;
 		 c2sif.ret = 0;
 		 @( push_event.triggered );
@@ -42,7 +44,7 @@ module drv_c2sif
 	      1: begin // read
 		 @( pull_event.triggered );
 		 c2sif.ret = 0;
-		 c2sif.data[0] = 32'h0 | dout;
+		 c2sif.data[0] = 32'h0 | dout; // データ取り込み
 		 c2sif.ack = 1'b1;
 		 `debug_printf(("set ack: 1"));
 		 @( negedge c2sif.req );
@@ -55,6 +57,7 @@ module drv_c2sif
       end
    endtask // get_packet
 
+   // タスクの起動（このドライバではタスクが１つ）
    initial begin
       fork
 	 get_packet();
@@ -73,8 +76,8 @@ module drv_c2sif
 
    always @( posedge clk ) begin
       if( rst == 1'b0 ) begin
-	 #(dout_delay);
-	 -> pull_event;
+	 #(dout_delay); // データの取り込みはalways文中ではやらない
+	 -> pull_event; // pull_eventとデータ取り込みのタイミングの問題
       end
    end
    

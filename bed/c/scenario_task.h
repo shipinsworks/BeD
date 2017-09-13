@@ -15,6 +15,7 @@ typedef struct {
   uint32_t data[S2CIF_DATA_SIZE];
 } s2cif_pkt_s;
 
+// Sim側からの転送パケット
 #define C2SIF_DATA_SIZE 16
 typedef struct {
   uint32_t id;
@@ -24,13 +25,15 @@ typedef struct {
   uint32_t size;
   uint32_t data[C2SIF_DATA_SIZE];
 } c2sif_pkt_s;
-    
+
+// Sim側の関数宣言
 extern void c2s_printf( char *str );
 extern void c2s_debug_printf( char *str );
 extern void c2s_error_printf( char *str );
 extern void c2s_write_packet( c2sif_pkt_s *pkt );
 extern void c2s_read_packet( c2sif_pkt_s *pkt );
 
+// macro
 #define BASENAME(p) ((strrchr((p), '/') ? : ((p) - 1)) + 1)
 
 #define printf(...) msg_printf( __VA_ARGS__ )
@@ -80,7 +83,7 @@ void msg_printf( char *format, ... )
     c2s_error_printf( tmp );							\
 }
 
-// Sim側マスタの要求関数の登録構造体
+// Sim側マスタの要求関数の登録テーブル
 #define S2C_FUNC_SIZE 256
 typedef struct {
   uint32_t id; // id!=0の時データが有効
@@ -222,6 +225,7 @@ void s2c_func_call( s2cif_pkt_s *pkt )
   pkt->ret = ret;
 }
 
+// すべての応答関数が終了可能であるかチェック
 void s2c_check_end( s2cif_pkt_s *pkt )
 {
   int ret = 0;
@@ -235,6 +239,7 @@ void s2c_check_end( s2cif_pkt_s *pkt )
   }
 }
 
+// シナリオ側からの書き込み関数
 int write_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, uint32_t data[C2SIF_DATA_SIZE] )
 {
   c2sif_pkt_s pkt;
@@ -255,6 +260,7 @@ int write_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, uint32
   return ret;
 }
 
+// シナリオ側からの読み出し関数
 int read_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, uint32_t data[C2SIF_DATA_SIZE] )
 {
   c2sif_pkt_s pkt;
