@@ -1,0 +1,2 @@
+verilog worklib ../rtl/memory_8bit.v
+verilog worklib ../rtl/mem_sim_axi_slave.v
