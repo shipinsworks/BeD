@@ -105,13 +105,14 @@
 	 if( c2sif.id == id ) begin
 	    case( c2sif.fn )
 	      0: begin // write
-		 awaddr_r0 = c2sif.data[0];
-		 wdata_r0 = c2sif.data[1];
-		 `debug_printf(("get_packet c2sif.data: %08x %08x",c2sif.data[0],c2sif.data[1]));
-		 
+		 awaddr_r0 = c2sif.addr;
+		 wdata_r0 = c2sif.data[0];
+		 `debug_printf(("get_packet c2sif.data: 0x%08x 0x%08x",c2sif.addr,c2sif.data[0]));
+		 // Write動作の起動と完了待ち
 		 write_flag = 1'b1;
 		 @( write_end_event.triggered );
 		 c2sif.ret = 0;
+		 // C2SIFとのハンドシェイク
 		 c2sif.ack = 1'b1;
 		 `debug_printf(("set ack: 1"));
 		 @( negedge c2sif.req );
@@ -120,11 +121,13 @@
 		 `debug_printf(("set ack: 0"));
 	      end // case: 0
 	      1: begin // read
-		 araddr_r0 = c2sif.data[0];
+		 araddr_r0 = c2sif.addr;
+		 // Read動作の起動と完了待ち
 		 read_flag = 1'b1;
 		 @( read_end_event.triggered );
 		 c2sif.ret = 0;
-		 c2sif.data[1] = rdata_r0; // データ取り込み
+		 c2sif.data[0] = rdata_r0; // データ取り込み
+		 // C2SIFとのハンドシェイク
 		 c2sif.ack = 1'b1;
 		 `debug_printf(("set ack: 1"));
 		 @( negedge c2sif.req );
@@ -137,7 +140,7 @@
       end
    endtask // get_packet
 
-   // タスクの起動（このドライバではタスクが１つ）
+   // DPI-Cインタフェースのタスク起動（このドライバではタスクが１つ）
    initial begin
       write_flag = 1'b0;
       read_flag = 1'b0;
@@ -147,23 +150,27 @@
       join;
    end
 
+   // Write動作の起動処理
    always @( posedge write_flag ) begin
+      // リセット期間中は動作を待たせる
       if( rst == 1'b1 ) begin
 	 @( negedge rst );
 	 #(30);
       end
       `debug_printf(("call AXI_Master_1Seq_Write."));
-      AXI_Master_1Seq_Write(0,awaddr_r0,1,4,0,wdata_r0,0,0);
+      AXI_Master_1Seq_Write(0,awaddr_r0,0,4,0,wdata_r0,0,0);
       -> write_end_event;
    end
-   
+
+   // Read動作の起動処理
    always @( posedge read_flag ) begin
+      // リセット期間中は動作を待たせる
       if( rst == 1'b1 ) begin
 	 @( negedge rst );
 	 #(30);
       end
       `debug_printf(("call AXI_Master_1Seq_Read."));
-      AXI_Master_1Seq_Read(0,araddr_r0,1,4,0,0);
+      AXI_Master_1Seq_Read(0,araddr_r0,0,4,0,0);
       -> read_end_event;
    end
    
@@ -393,7 +400,7 @@
       input	[7:0]	rmax_wait;	// Read時の最大wait数
       integer 		i, val;
       begin
-	 `debug_printf(("call AXI_MASTER_RDC. rdata:"));
+	 `debug_printf(("call AXI_MASTER_RDC."));
 
 	 while (~(S_AXI_RLAST_d & S_AXI_RVALID_d & S_AXI_RREADY)) begin // S_AXI_RLAST & S_AXI_RVALID & S_AXI_RREADY で終了
 	    if (rmax_wait == 0) begin // rmax_wait が0の時は$random を実行しない
@@ -413,6 +420,10 @@
 	       #DELAY;
 	    end
 
+	    // ここでデータ取り込み
+	    rdata_r0 = S_AXI_RDATA;
+	    `debug_printf(("RDATA: 0x%08x",rdata_r0));
+	    
 	    S_AXI_RREADY = 1'b1;
 	    @(posedge ACLK);	// 次のクロックへ
 	    while (~S_AXI_RVALID_d) begin // S_AXI_RVALID が1になるまでWait

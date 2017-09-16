@@ -87,9 +87,6 @@ module axi_top;
    initial begin
       $display("Scenario Call.");
       scenario();
-      #200;
-      // U1.AXI_Master_1Seq_Write(0,0,1,4,0,32'h12345678,0,0);
-      // U1.AXI_MASTER_WAC(0,32'h01234,1,4,0);
       #100 $finish;
    end
 
