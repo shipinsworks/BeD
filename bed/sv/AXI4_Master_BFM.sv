@@ -157,8 +157,8 @@
 	 @( negedge rst );
 	 #(30);
       end
-      `debug_printf(("call AXI_Master_1Seq_Write."));
-      AXI_Master_1Seq_Write(0,awaddr_r0,0,4,0,wdata_r0,0,0);
+      `debug_printf(("call AXI_Master_1Seq_Write. awid:0 awlen:0 awsize:2 awburst:1 wait_clk_bready:0 wmax_wait:0"));
+      AXI_Master_1Seq_Write(0,awaddr_r0,0,2,1,wdata_r0,0,0);
       -> write_end_event;
    end
 
@@ -169,8 +169,8 @@
 	 @( negedge rst );
 	 #(30);
       end
-      `debug_printf(("call AXI_Master_1Seq_Read."));
-      AXI_Master_1Seq_Read(0,araddr_r0,0,4,0,0);
+      `debug_printf(("call AXI_Master_1Seq_Read. arid:0 arlen:0 arsize:2 arburst:1 rmax_wait:0"));
+      AXI_Master_1Seq_Read(0,araddr_r0,0,2,1,0);
       -> read_end_event;
    end
    
