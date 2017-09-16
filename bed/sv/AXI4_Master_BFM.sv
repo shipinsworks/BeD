@@ -1,7 +1,7 @@
 // AXI4 bus Master Bus Fucntion Mode
-// 2012/10/24 : C³AS_AXI_AWREADY‚ª1‚É‚È‚é‚Ì‚ğŠm”F‚µ‚Ä‚©‚çS_AXI_WVALID‚ğ1‚É‚µ‚Ä‚¢‚½‚Ì‚Å‚ÍAAXIƒoƒX‚Ì”ñ•W€‚Æ‚È‚éB
-// ‚æ‚Á‚ÄAAXI_MASTER_WAC ‚ÆAXI_MASTER_WDC ‚ğfork ~ join ‚Å•À—ñ‚ÉÀs‚·‚é
-// 2013/12/14 : input ‚É DELAY‚ğ“ü‚ê‚é‚æ‚¤‚É•ÏX
+// 2012/10/24 : ä¿®æ­£ã€S_AXI_AWREADYãŒ1ã«ãªã‚‹ã®ã‚’ç¢ºèªã—ã¦ã‹ã‚‰S_AXI_WVALIDã‚’1ã«ã—ã¦ã„ãŸã®ã§ã¯ã€AXIãƒã‚¹ã®éæ¨™æº–ã¨ãªã‚‹ã€‚
+// ã‚ˆã£ã¦ã€AXI_MASTER_WAC ã¨AXI_MASTER_WDC ã‚’fork ~ join ã§ä¸¦åˆ—ã«å®Ÿè¡Œã™ã‚‹
+// 2013/12/14 : input ã« DELAYã‚’å…¥ã‚Œã‚‹ã‚ˆã†ã«å¤‰æ›´
 //
 `include "macro.svh"
 `include "c2sif.svh"
@@ -96,10 +96,10 @@
    logic 	      read_flag;
    event 	      read_end_event;
    
-   // ƒVƒiƒŠƒI‚©‚ç‚Ìw¦‚ğˆ—‚·‚éŠÖ”
+   // ã‚·ãƒŠãƒªã‚ªã‹ã‚‰ã®æŒ‡ç¤ºã‚’å‡¦ç†ã™ã‚‹é–¢æ•°
    task get_packet();
       forever begin
-	 @( posedge c2sif.req ); // ƒVƒiƒŠƒI‘¤‚©‚ç‚ÌŒÄ‚Ño‚µ‘Ò‚¿
+	 @( posedge c2sif.req ); // ã‚·ãƒŠãƒªã‚ªå´ã‹ã‚‰ã®å‘¼ã³å‡ºã—å¾…ã¡
 	 `debug_printf(("found req: 1"));
 	 
 	 if( c2sif.id == id ) begin
@@ -108,11 +108,11 @@
 		 awaddr_r0 = c2sif.addr;
 		 wdata_r0 = c2sif.data[0];
 		 `debug_printf(("get_packet c2sif.data: 0x%08x 0x%08x",c2sif.addr,c2sif.data[0]));
-		 // Write“®ì‚Ì‹N“®‚ÆŠ®—¹‘Ò‚¿
+		 // Writeå‹•ä½œã®èµ·å‹•ã¨å®Œäº†å¾…ã¡
 		 write_flag = 1'b1;
 		 @( write_end_event.triggered );
 		 c2sif.ret = 0;
-		 // C2SIF‚Æ‚Ìƒnƒ“ƒhƒVƒFƒCƒN
+		 // C2SIFã¨ã®ãƒãƒ³ãƒ‰ã‚·ã‚§ã‚¤ã‚¯
 		 c2sif.ack = 1'b1;
 		 `debug_printf(("set ack: 1"));
 		 @( negedge c2sif.req );
@@ -122,12 +122,12 @@
 	      end // case: 0
 	      1: begin // read
 		 araddr_r0 = c2sif.addr;
-		 // Read“®ì‚Ì‹N“®‚ÆŠ®—¹‘Ò‚¿
+		 // Readå‹•ä½œã®èµ·å‹•ã¨å®Œäº†å¾…ã¡
 		 read_flag = 1'b1;
 		 @( read_end_event.triggered );
 		 c2sif.ret = 0;
-		 c2sif.data[0] = rdata_r0; // ƒf[ƒ^æ‚è‚İ
-		 // C2SIF‚Æ‚Ìƒnƒ“ƒhƒVƒFƒCƒN
+		 c2sif.data[0] = rdata_r0; // ãƒ‡ãƒ¼ã‚¿å–ã‚Šè¾¼ã¿
+		 // C2SIFã¨ã®ãƒãƒ³ãƒ‰ã‚·ã‚§ã‚¤ã‚¯
 		 c2sif.ack = 1'b1;
 		 `debug_printf(("set ack: 1"));
 		 @( negedge c2sif.req );
@@ -140,7 +140,7 @@
       end
    endtask // get_packet
 
-   // DPI-CƒCƒ“ƒ^ƒtƒF[ƒX‚Ìƒ^ƒXƒN‹N“®i‚±‚Ìƒhƒ‰ƒCƒo‚Å‚Íƒ^ƒXƒN‚ª‚P‚Âj
+   // DPI-Cã‚¤ãƒ³ã‚¿ãƒ•ã‚§ãƒ¼ã‚¹ã®ã‚¿ã‚¹ã‚¯èµ·å‹•ï¼ˆã“ã®ãƒ‰ãƒ©ã‚¤ãƒã§ã¯ã‚¿ã‚¹ã‚¯ãŒï¼‘ã¤ï¼‰
    initial begin
       write_flag = 1'b0;
       read_flag = 1'b0;
@@ -150,9 +150,9 @@
       join;
    end
 
-   // Write“®ì‚Ì‹N“®ˆ—
+   // Writeå‹•ä½œã®èµ·å‹•å‡¦ç†
    always @( posedge write_flag ) begin
-      // ƒŠƒZƒbƒgŠúŠÔ’†‚Í“®ì‚ğ‘Ò‚½‚¹‚é
+      // ãƒªã‚»ãƒƒãƒˆæœŸé–“ä¸­ã¯å‹•ä½œã‚’å¾…ãŸã›ã‚‹
       if( rst == 1'b1 ) begin
 	 @( negedge rst );
 	 #(30);
@@ -162,9 +162,9 @@
       -> write_end_event;
    end
 
-   // Read“®ì‚Ì‹N“®ˆ—
+   // Readå‹•ä½œã®èµ·å‹•å‡¦ç†
    always @( posedge read_flag ) begin
-      // ƒŠƒZƒbƒgŠúŠÔ’†‚Í“®ì‚ğ‘Ò‚½‚¹‚é
+      // ãƒªã‚»ãƒƒãƒˆæœŸé–“ä¸­ã¯å‹•ä½œã‚’å¾…ãŸã›ã‚‹
       if( rst == 1'b1 ) begin
 	 @( negedge rst );
 	 #(30);
@@ -189,9 +189,9 @@
    always @* S_AXI_RVALID_d <= #DELAY S_AXI_RVALID;
 
    // Write Channel
-   // wait_clk_bready : 0 - bready ‚Ì Wait ‚Í–³‚µA0ˆÈŠO - bready ‚Ì Wait@‚Í wait_clk_bready@‚Ì’l‚Ì Wait ‚ª“ü‚é
-   // wmax_wait : 0 - wvalid ‚Ì Wait ‚Í–³‚µA0ˆÈŠO - wmax_wait ‚ğÅ‘å’l‚Æ‚·‚éƒ‰ƒ“ƒ_ƒ€‚È’l‚Ì Wait ‚ª@wvalid ‚É“ü‚é
-   task AXI_Master_1Seq_Write;	// Write Address; Write Data, Write Response ‚ğƒV[ƒPƒ“ƒVƒƒƒ‹‚ÉƒI[ƒo[ƒ‰ƒbƒv‚¹‚¸‚És‚¤B
+   // wait_clk_bready : 0 - bready ã® Wait ã¯ç„¡ã—ã€0ä»¥å¤– - bready ã® Waitã€€ã¯ wait_clk_breadyã€€ã®å€¤ã® Wait ãŒå…¥ã‚‹
+   // wmax_wait : 0 - wvalid ã® Wait ã¯ç„¡ã—ã€0ä»¥å¤– - wmax_wait ã‚’æœ€å¤§å€¤ã¨ã™ã‚‹ãƒ©ãƒ³ãƒ€ãƒ ãªå€¤ã® Wait ãŒã€€wvalid ã«å…¥ã‚‹
+   task AXI_Master_1Seq_Write;	// Write Address; Write Data, Write Response ã‚’ã‚·ãƒ¼ã‚±ãƒ³ã‚·ãƒ£ãƒ«ã«ã‚ªãƒ¼ãƒãƒ¼ãƒ©ãƒƒãƒ—ã›ãšã«è¡Œã†ã€‚
       input [0:0]	awid;
       input [31:0] 	awaddr;
       input [7:0] 	awlen;
@@ -227,15 +227,15 @@
 	 S_AXI_AWBURST	= awburst;
 	 S_AXI_AWVALID	= 1'b1;
 
-	 if (axi_w_transaction_active == 1'b0) begin // AXI Write ƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“‚ªŠJn‚³‚ê‚Ä‚¢‚éê‡‚Í–ß‚é
-	    axi_w_transaction_active = 1'b1; // AXIƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“ŠJn
+	 if (axi_w_transaction_active == 1'b0) begin // AXI Write ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³ãŒé–‹å§‹ã•ã‚Œã¦ã„ã‚‹å ´åˆã¯æˆ»ã‚‹
+	    axi_w_transaction_active = 1'b1; // AXIãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³é–‹å§‹
 	    
-	    awlen_hold		= awlen; // Write Data Channel ‚Ì‚½‚ß‚Éƒo[ƒXƒg”‚ğæ‚Á‚Ä‚¨‚­
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	    awlen_hold		= awlen; // Write Data Channel ã®ãŸã‚ã«ãƒãƒ¼ã‚¹ãƒˆæ•°ã‚’å–ã£ã¦ãŠã
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    
-	    while (~S_AXI_AWREADY_d) begin	// S_AXI_AWREADY ‚ª1‚É‚È‚é‚Ü‚Å‘Ò‚Â
+	    while (~S_AXI_AWREADY_d) begin	// S_AXI_AWREADY ãŒ1ã«ãªã‚‹ã¾ã§å¾…ã¤
 	       #DELAY;
-	       @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	       @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    end
 	    
 	    #DELAY;
@@ -245,18 +245,18 @@
 	    S_AXI_AWSIZE 	= 0;
 	    S_AXI_AWBURST 	= 0;
 	    S_AXI_AWVALID 	= 1'b0;
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    #DELAY;
 	 end
       end
    endtask
 
    // Write Data Channel
-   // wmax_wait : 0 - wvalid ‚Ì Wait ‚Í–³‚µA0ˆÈŠO - wmax_wait ‚ğÅ‘å’l‚Æ‚·‚éƒ‰ƒ“ƒ_ƒ€‚È’l‚Ì Wait ‚ª@wvalid ‚É“ü‚é
-   task AXI_MASTER_WDC;	// WDATA ‚Í+1‚·‚é
-      // ‚Æ‚è‚ ‚¦‚¸AWSTRB‚ÍƒI[ƒ‹1‚É‚·‚é
+   // wmax_wait : 0 - wvalid ã® Wait ã¯ç„¡ã—ã€0ä»¥å¤– - wmax_wait ã‚’æœ€å¤§å€¤ã¨ã™ã‚‹ãƒ©ãƒ³ãƒ€ãƒ ãªå€¤ã® Wait ãŒã€€wvalid ã«å…¥ã‚‹
+   task AXI_MASTER_WDC;	// WDATA ã¯+1ã™ã‚‹
+      // ã¨ã‚Šã‚ãˆãšã€WSTRBã¯ã‚ªãƒ¼ãƒ«1ã«ã™ã‚‹
       input [31:0]	wdata;
-      input [7:0] 	wmax_wait;	// Write‚ÌÅ‘åwait”
+      input [7:0] 	wmax_wait;	// Writeæ™‚ã®æœ€å¤§waitæ•°
       integer 		i, j, val;
       begin
 	 `debug_printf(("call AXI_MASTER_WDC. wdata: 0x%08x",wdata));
@@ -264,26 +264,26 @@
 	 i = 0; j = 0;
 	 S_AXI_WSTRB = 4'b1111;
 	 
-	 while (~S_AXI_AWVALID) begin	// S_AXI_AWVALID ‚ª1‚É‚È‚é‚Ü‚Å‘Ò‚Â
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	 while (~S_AXI_AWVALID) begin	// S_AXI_AWVALID ãŒ1ã«ãªã‚‹ã¾ã§å¾…ã¤
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    #DELAY;
 	 end
 	 
 	 while (i<=awlen_hold) begin
-	    if (wmax_wait == 0) // wmax_wait ‚ª0‚Ì‚Í$random ‚ğÀs‚µ‚È‚¢
+	    if (wmax_wait == 0) // wmax_wait ãŒ0ã®æ™‚ã¯$random ã‚’å®Ÿè¡Œã—ãªã„
 	      val = 0;
 	    else
 	      val = $unsigned($random) % (wmax_wait+1);
 	    
-	    if (val == 0) begin // wait‚È‚µ
+	    if (val == 0) begin // waitãªã—
 	       S_AXI_WVALID = 1'b1;
-	    end else begin // wait‚ ‚è
+	    end else begin // waitã‚ã‚Š
 	       S_AXI_WVALID = 1'b0;
 	       for (j=0; j<val; j=j+1) begin
-		  @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+		  @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 		  #DELAY;
 	       end
-	       S_AXI_WVALID = 1'b1; // waitI—¹
+	       S_AXI_WVALID = 1'b1; // waitçµ‚äº†
 	    end
 	    
 	    if (i == awlen_hold)
@@ -293,11 +293,11 @@
 	    S_AXI_WDATA = wdata;
 	    wdata = wdata + 1;
 	    
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    
-	    while (~S_AXI_WREADY_d) begin	// S_AXI_WREADY ‚ª0‚Ì‚Í1‚É‚È‚é‚Ü‚Å‘Ò‚Â
+	    while (~S_AXI_WREADY_d) begin	// S_AXI_WREADY ãŒ0ã®æ™‚ã¯1ã«ãªã‚‹ã¾ã§å¾…ã¤
 	       #DELAY;
-	       @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	       @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    end
 	    #DELAY;
 	    
@@ -310,7 +310,7 @@
    endtask
 
    // Write Response Channel
-   // wait_clk_bready : 0 - bready ‚Ì Wait ‚Í–³‚µA0ˆÈŠO - bready ‚Ì Wait@‚Í wait_clk_bready@‚Ì’l‚Ì Wait ‚ª“ü‚é
+   // wait_clk_bready : 0 - bready ã® Wait ã¯ç„¡ã—ã€0ä»¥å¤– - bready ã® Waitã€€ã¯ wait_clk_breadyã€€ã®å€¤ã® Wait ãŒå…¥ã‚‹
    task AXI_MASTER_WRC;	// wait_clk_bready
       input   [7:0]	wait_clk_bready;
       integer 		i;
@@ -318,37 +318,37 @@
 	 `debug_printf(("call AXI_MASTER_WRC."));
 	 
 	 for (i=0; i<wait_clk_bready; i=i+1) begin
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    #DELAY;
 	 end
 	 
 	 S_AXI_BREADY = 1'b1;
 	 
 	 
-	 @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	 @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	 
-	 while (~S_AXI_BVALID_d) begin // S_AXI_BVALID ‚ª1‚É‚È‚é‚Ü‚ÅWait
+	 while (~S_AXI_BVALID_d) begin // S_AXI_BVALID ãŒ1ã«ãªã‚‹ã¾ã§Wait
 	    #DELAY;
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	 end
 	 #DELAY;
 	 
 	 S_AXI_BREADY = 1'b0;
 	 
-	 axi_w_transaction_active = 1'b0; // AXIƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“I—¹
+	 axi_w_transaction_active = 1'b0; // AXIãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³çµ‚äº†
 	 @(posedge ACLK);
 	 #DELAY;
       end
    endtask
 
    // Read Channel
-   task AXI_Master_1Seq_Read; // Read Address, Read Data ‚ğƒV[ƒPƒ“ƒVƒƒƒ‹‚És‚¤B
+   task AXI_Master_1Seq_Read; // Read Address, Read Data ã‚’ã‚·ãƒ¼ã‚±ãƒ³ã‚·ãƒ£ãƒ«ã«è¡Œã†ã€‚
       input [0:0]	arid;
       input [31:0] 	araddr;
       input [7:0] 	arlen;
       input [2:0] 	arsize;
       input [1:0] 	arburst;
-      input [7:0] 	rmax_wait;	// Read‚ÌÅ‘åwait”
+      input [7:0] 	rmax_wait;	// Readæ™‚ã®æœ€å¤§waitæ•°
       begin
 	 AXI_MASTER_RAC(arid, araddr, arlen, arsize, arburst);
 	 AXI_MASTER_RDC(rmax_wait);
@@ -372,13 +372,13 @@
 	 S_AXI_ARBURST	= arburst;
 	 S_AXI_ARVALID 	= 1'b1;
 
-	 if (axi_r_transaction_active == 1'b0) begin // AXI Read ƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“‚ªŠJn‚³‚ê‚Ä‚¢‚éê‡‚Í–ß‚é
-	    arlen_hold	=arlen; // Read Data Channel ‚Ì‚½‚ß‚Éƒo[ƒXƒg”‚ğæ‚Á‚Ä‚¨‚­
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	 if (axi_r_transaction_active == 1'b0) begin // AXI Read ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³ãŒé–‹å§‹ã•ã‚Œã¦ã„ã‚‹å ´åˆã¯æˆ»ã‚‹
+	    arlen_hold	=arlen; // Read Data Channel ã®ãŸã‚ã«ãƒãƒ¼ã‚¹ãƒˆæ•°ã‚’å–ã£ã¦ãŠã
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 
-	    while (~S_AXI_ARREADY_d) begin	// S_AXI_ARREADY ‚ª1‚É‚È‚é‚Ü‚Å‘Ò‚Â
+	    while (~S_AXI_ARREADY_d) begin	// S_AXI_ARREADY ãŒ1ã«ãªã‚‹ã¾ã§å¾…ã¤
 	       #DELAY;
-	       @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	       @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    end
 
 	    #DELAY;
@@ -388,22 +388,22 @@
 	    S_AXI_ARSIZE 	= 0;
 	    S_AXI_ARBURST 	= 0;
 	    S_AXI_ARVALID 	= 1'b0;
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    #DELAY;
-	    axi_r_transaction_active = 1'b1; // AXIƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“ŠJn
+	    axi_r_transaction_active = 1'b1; // AXIãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³é–‹å§‹
 	 end
       end
    endtask
 
    // Read Data Channel
-   task AXI_MASTER_RDC; // S_AXI_RLAST ‚ªƒAƒT[ƒg‚³‚ê‚é‚Ü‚ÅS_AXI_RREADY ‚ğƒAƒT[ƒg‚·‚é
-      input	[7:0]	rmax_wait;	// Read‚ÌÅ‘åwait”
+   task AXI_MASTER_RDC; // S_AXI_RLAST ãŒã‚¢ã‚µãƒ¼ãƒˆã•ã‚Œã‚‹ã¾ã§S_AXI_RREADY ã‚’ã‚¢ã‚µãƒ¼ãƒˆã™ã‚‹
+      input	[7:0]	rmax_wait;	// Readæ™‚ã®æœ€å¤§waitæ•°
       integer 		i, val;
       begin
 	 `debug_printf(("call AXI_MASTER_RDC."));
 
-	 while (~(S_AXI_RLAST_d & S_AXI_RVALID_d & S_AXI_RREADY)) begin // S_AXI_RLAST & S_AXI_RVALID & S_AXI_RREADY ‚ÅI—¹
-	    if (rmax_wait == 0) begin // rmax_wait ‚ª0‚Ì‚Í$random ‚ğÀs‚µ‚È‚¢
+	 while (~(S_AXI_RLAST_d & S_AXI_RVALID_d & S_AXI_RREADY)) begin // S_AXI_RLAST & S_AXI_RVALID & S_AXI_RREADY ã§çµ‚äº†
+	    if (rmax_wait == 0) begin // rmax_wait ãŒ0ã®æ™‚ã¯$random ã‚’å®Ÿè¡Œã—ãªã„
 	       val = 0;
 	       S_AXI_RREADY = 1'b1;
 	    end else begin
@@ -415,27 +415,27 @@
 	    end
 	    #DELAY;
 
-	    for (i=0; i<val; i=i+1) begin // ƒ‰ƒ“ƒ_ƒ€’l‚ÅWaitAval=0‚Ì‚ÍƒXƒLƒbƒv
-	       @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	    for (i=0; i<val; i=i+1) begin // ãƒ©ãƒ³ãƒ€ãƒ å€¤ã§Waitã€val=0ã®æ™‚ã¯ã‚¹ã‚­ãƒƒãƒ—
+	       @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	       #DELAY;
 	    end
 
-	    // ‚±‚±‚Åƒf[ƒ^æ‚è‚İ
+	    // ã“ã“ã§ãƒ‡ãƒ¼ã‚¿å–ã‚Šè¾¼ã¿
 	    rdata_r0 = S_AXI_RDATA;
 	    `debug_printf(("RDATA: 0x%08x",rdata_r0));
 	    
 	    S_AXI_RREADY = 1'b1;
-	    @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
-	    while (~S_AXI_RVALID_d) begin // S_AXI_RVALID ‚ª1‚É‚È‚é‚Ü‚ÅWait
+	    @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
+	    while (~S_AXI_RVALID_d) begin // S_AXI_RVALID ãŒ1ã«ãªã‚‹ã¾ã§Wait
 	       #DELAY;
-	       @(posedge ACLK);	// Ÿ‚ÌƒNƒƒbƒN‚Ö
+	       @(posedge ACLK);	// æ¬¡ã®ã‚¯ãƒ­ãƒƒã‚¯ã¸
 	    end
 	    #DELAY;
 	 end
 	 #DELAY;
 
 	 S_AXI_RREADY = 1'b0;
-	 axi_r_transaction_active = 1'b0; // AXIƒgƒ‰ƒ“ƒUƒNƒVƒ‡ƒ“I—¹
+	 axi_r_transaction_active = 1'b0; // AXIãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³çµ‚äº†
 	 @(posedge ACLK);
 	 #DELAY;
       end
