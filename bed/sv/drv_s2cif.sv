@@ -16,6 +16,8 @@ module drv_s2cif
     );
 
    logic 	din_r0;
+   uint32_t     addr = 0;
+   uint32_t     size = 1;
    uint32_t     data[`S2CIF_DATA_SIZE];
    int 		ret;
 
@@ -32,7 +34,7 @@ module drv_s2cif
       if( rst == 1'b1 )
 	din_r0 <= 1'b0;
       else begin
-	 s2cif.data_pull_call( id, 0, ret, data ); // dff_get_data
+	 s2cif.data_pull_call( id, 0, addr, size, ret, data ); // dff_get_data
 	 `debug_printf(("data_pull_call called: ret:%d",ret));
 	 if( ret == 0 ) begin
 	    din_r0 <= data[0] & 1'b1;
@@ -53,7 +55,7 @@ module drv_s2cif
       if( rst == 1'b0 ) begin
 	 data[0] = { 31'h0, dout };
 	 `debug_printf(("data_push_call data[0]: %08x",data[0]));
-	 s2cif.data_push_call( id, 1, ret, data );
+	 s2cif.data_push_call( id, 1, addr, size, ret, data );
 	 `debug_printf(("data_push_call called: ret:%d",ret));
       end
    end

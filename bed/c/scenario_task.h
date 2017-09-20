@@ -12,6 +12,8 @@ typedef struct {
   uint32_t id;
   uint32_t fn;
   int ret;
+  uint32_t addr;
+  uint32_t size;
   uint32_t data[S2CIF_DATA_SIZE];
 } s2cif_pkt_s;
 
