@@ -23,9 +23,9 @@ module axi4_lite_both_top;
 
    // シナリオ側からのデータ投入インタフェース
    c2sif c2sif();
-
+   s2cif s2cif();
+   
    initial begin
-      $display("Scenario Call.");
       scenario();
       #100 $finish;
    end

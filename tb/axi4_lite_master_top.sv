@@ -85,7 +85,6 @@ module axi4_lite_master_top;
    c2sif c2sif();
 
    initial begin
-      $display("Scenario Call.");
       scenario();
       #100 $finish;
    end

@@ -107,7 +107,7 @@ module axi4_lite_slave_bfm
 	#(awready_negedge_delay) s_awready = awready;
    end
 
-   logic [31:0] wdata;
+   uint32_t     wdata[`S2CIF_DATA_SIZE];
    logic [3:0] 	wstrb;
    logic 	wready;
    int 		w_state;
@@ -122,7 +122,7 @@ module axi4_lite_slave_bfm
 	 case( w_state )
 	   `W_IDLE: begin
 	      if( s_wvalid == 1'b1 ) begin
-		 wdata = s_wdata;
+		 wdata[0] = s_wdata;
 		 wstrb = s_wstrb;
 		 wready = 1'b1;
 		 w_state = `W_GET_DATA;
