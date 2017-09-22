@@ -58,9 +58,9 @@ module axi4_lite_slave_bfm
    
    // 応答関数の設定要求
    initial begin
-      s2cif.func_setup( id, 0, &ret ); // axi4_lite_slave_write
+      s2cif.func_setup( id, 1, &ret ); // axi4_lite_slave_write
       if( ret != 0 ) $finish();
-      s2cif.func_setup( id, 1, &ret ); // axi4_lite_slave_read
+      s2cif.func_setup( id, 2, &ret ); // axi4_lite_slave_read
       if( ret != 0 ) $finish();
    end
 
@@ -212,7 +212,7 @@ module axi4_lite_slave_bfm
 	      if( s_arvalid == 1'b1 ) begin
 		 araddr = s_araddr;
 		 arcache = s_arcache;
-		 s2cif.data_pull_call( id, 0, araddr, size, ret, data ); // read data
+		 s2cif.data_pull_call( id, 2, araddr, size, ret, data ); // read data
 		 if( ret == 0 )
 		   rresp = 2'b00;
 		 else

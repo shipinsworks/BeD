@@ -71,7 +71,7 @@ module axi4_lite_master_bfm
 	 
 	 if( c2sif.id == id ) begin
 	    case( c2sif.fn )
-	      0: begin // write
+	      1: begin // write
 		 gp_awaddr = c2sif.addr;
 		 gp_wdata = c2sif.data[0];
 		 `debug_printf(("get_packet c2sif.data: 0x%08x 0x%08x",c2sif.addr,c2sif.data[0]));
@@ -87,7 +87,7 @@ module axi4_lite_master_bfm
 		 c2sif.ack = 1'b0;
 		 `debug_printf(("set ack: 0"));
 	      end // case: 0
-	      1: begin // read
+	      2: begin // read
 		 gp_araddr = c2sif.addr;
 		 // Read動作の起動と完了待ち
 		 gp_read_flag = 1'b1;

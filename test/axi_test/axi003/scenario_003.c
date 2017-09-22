@@ -24,18 +24,18 @@ void scenario() {
   uint32_t data[C2SIF_DATA_SIZE];
   int ret = 0;
   ret = func_setup( 2, 1, 0, axi4_lite_slave_write );
-  ret = func_setup( 2, 0, 1, axi4_lite_slave_read );
+  ret = func_setup( 2, 2, 1, axi4_lite_slave_read );
   printf("scenario axi_003.");
 
   // データを投入
   addr = 0x00000100; // awaddr
   data[0] = 0x12345678; // wdata
   printf("write addr: 0x%08x data: 0x%08x",addr,data[0]);
-  ret = write_packet( 1, 0, addr, 1, data );
+  ret = write_packet( 1, 1, addr, 1, data );
   printf("ret: %d", ret);
   addr = 0x00000100; // araddr
   data[0] = 0x00000000; // rdata
-  ret = read_packet( 1, 1, addr, 1, data );
+  ret = read_packet( 1, 2, addr, 1, data );
   printf("read addr: 0x%08x data: 0x%08x",addr, data[0]);
   
 }

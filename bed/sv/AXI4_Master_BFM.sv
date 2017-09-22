@@ -104,7 +104,7 @@
 	 
 	 if( c2sif.id == id ) begin
 	    case( c2sif.fn )
-	      0: begin // write
+	      1: begin // write
 		 awaddr_r0 = c2sif.addr;
 		 wdata_r0 = c2sif.data[0];
 		 `debug_printf(("get_packet c2sif.data: 0x%08x 0x%08x",c2sif.addr,c2sif.data[0]));
@@ -120,7 +120,7 @@
 		 c2sif.ack = 1'b0;
 		 `debug_printf(("set ack: 0"));
 	      end // case: 0
-	      1: begin // read
+	      2: begin // read
 		 araddr_r0 = c2sif.addr;
 		 // Read動作の起動と完了待ち
 		 read_flag = 1'b1;

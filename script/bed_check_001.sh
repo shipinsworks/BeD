@@ -2,8 +2,8 @@
 echo "bsim command check"
 echo "./clean.sh"
 ./clean.sh
-echo "bsim -p dff.prj"
-bsim -p dff.prj
+echo "bsim -p project/dff.prj"
+bsim -p project/dff.prj
 if [ $? == 0 ]; then
     echo "---------- OK"
 else
@@ -18,8 +18,8 @@ else
     echo "---------- NG"
 fi
 echo ""
-echo "bsim testcase/bed_testcase/tc001 => Error: not run xelab"
-bsim testcase/bed_testcase/tc001
+echo "bsim test/bed_test/tc001 => Error: not run xelab"
+bsim test/bed_test/tc001
 if [ $? != 0 ]; then
     echo "---------- OK"
 else
