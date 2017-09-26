@@ -283,4 +283,24 @@ int read_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, uint32_
   return ret;
 }
 
+int setup_packet( uint32_t id, uint32_t fn, uint32_t addr, uint32_t size, uint32_t data[C2SIF_DATA_SIZE] )
+{
+  c2sif_pkt_s pkt;
+  int ret;
+  pkt.id = id;
+  pkt.fn = fn;
+  pkt.addr = addr;
+  pkt.size = size;
+  if( size > C2SIF_DATA_SIZE ) {
+    ret = 1008; // size over
+  } else {
+    for( int i=0; i<size; i++ ) {
+      pkt.data[i] = data[i];
+    }
+    c2s_write_packet( &pkt );
+    ret = pkt.ret;
+  }
+  return ret;
+}
+
 #endif

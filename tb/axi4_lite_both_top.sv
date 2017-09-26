@@ -106,7 +106,8 @@ module axi4_lite_both_top;
        )
    U2(
       .s2cif(s2cif),
-
+      .c2sif(c2sif),
+      
       .aclk(aclk),
       .aresetn(aresetn),
 

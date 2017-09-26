@@ -26,30 +26,30 @@ module axi4_lite_master_bfm
     input logic aclk,
     input logic aresetn,
     // Write Address Chanel Ports
-    output logic [31:0] m_awaddr = 0,
-    output logic [3:0] m_awcache = 3,
-    output logic [2:0] m_awprot = 0,
-    output logic m_awvalid = 0,
+    output logic [31:0] m_awaddr = 32'h00000000,
+    output logic [3:0] m_awcache = 4'h3,
+    output logic [2:0] m_awprot = 3'b000,
+    output logic m_awvalid = 1'b0,
     input logic m_awready,
     // Write Data Chanel Ports
-    output logic [31:0] m_wdata = 0,
+    output logic [31:0] m_wdata = 32'h00000000,
     output logic [3:0]  m_wstrb = 4'hf,
-    output logic m_wvalid = 0,
+    output logic m_wvalid = 1'b0,
     input logic m_wready,
     // Write Respons Chanel Ports
     input logic [1:0] m_bresp,
-    output logic m_bready = 0,
+    output logic m_bready = 1'b0,
     input logic m_bvalid,
     // Read Address Chanel Ports
-    output logic [31:0] m_araddr = 0,
-    output logic [3:0] m_arcache = 2,
-    output logic [2:0] m_arprot = 0,
-    output logic m_arvalid = 0,
+    output logic [31:0] m_araddr = 32'h00000000,
+    output logic [3:0] m_arcache = 4'h2,
+    output logic [2:0] m_arprot = 3'b000,
+    output logic m_arvalid = 1'b0,
     input logic m_arready,
     // Read Data Chanel Ports
     input logic [31:0] m_rdata,
     input logic [1:0] m_rresp,
-    output logic m_rready = 0,
+    output logic m_rready = 1'b0,
     input logic m_rvalid
     );
 
