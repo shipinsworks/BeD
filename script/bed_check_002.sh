@@ -10,8 +10,8 @@ else
     echo "---------- NG"
 fi
 echo ""
-echo "bsim test/bed_test/tc001 => Error: not run xelab"
-bsim test/bed_test/tc001
+echo "bsim pattern/bed_test/tc001 => Error: not run xelab"
+bsim pattern/bed_test/tc001
 if [ $? != 0 ]; then
     echo "---------- OK"
 else

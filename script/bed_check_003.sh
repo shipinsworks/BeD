@@ -10,16 +10,16 @@ else
     echo "---------- NG"
 fi
 echo ""
-echo "bsim -t tb/dff_top.sv test/bed_test/tc001"
-bsim -t tb/dff_s2cif_top.sv test/bed_test/tc001
+echo "bsim -t tb/dff_top.sv pattern/bed_test/tc001"
+bsim -t tb/dff_s2cif_top.sv pattern/bed_test/tc001
 if [ $? == 0 ]; then
     echo "---------- OK"
 else
     echo "---------- NG"
 fi
 echo ""
-echo "bsim test/bed_test/tc001"
-bsim test/bed_test/tc001
+echo "bsim pattern/bed_test/tc001"
+bsim pattern/bed_test/tc001
 if [ $? == 0 ]; then
     echo "---------- OK"
 else

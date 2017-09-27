@@ -4,8 +4,8 @@
 // データファイル
 static FILE *fp0 = NULL;
 static FILE *fp1 = NULL;
-static char get_filepath[] = "test/bed_test/tc001/dff_data.txt";
-static char put_filepath[] = "test/bed_test/tc001/sim/dff_dump.txt";
+static char get_filepath[] = "pattern/bed_test/tc001/dff_data.txt";
+static char put_filepath[] = "pattern/bed_test/tc001/sim/dff_dump.txt";
 
 // デーや要求に対する応答関数
 int dff_get_data( s2cif_pkt_s *pkt )

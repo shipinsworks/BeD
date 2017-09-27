@@ -6,7 +6,7 @@ CWD=$(pwd)
 usage()
 {
     cat <<EOF
-Usage: ${CMDNAME} [options] test_directory
+Usage: ${CMDNAME} [options] pattern_directory
   options
     -h                  : help
     -p <project_file>   : RTL project file
@@ -17,19 +17,19 @@ Usage: ${CMDNAME} [options] test_directory
     ${CMDNAME} -h
 // 2 step
     ${CMDNAME} -p dff.prj
-    ${CMDNAME} -t tb/dff_top.sv test/bed_test/tc001
+    ${CMDNAME} -t tb/dff_top.sv pattern/bed_test/tc001
 // all
-    ${CMDNAME} -p dff.prj -t tb/dff_top.sv tescase/bed_test/tc001
+    ${CMDNAME} -p dff.prj -t tb/dff_top.sv pattern/bed_test/tc001
 // modified testbench or scenario, testbench/scenario compile & sim run
-    ${CMDNAME} -t tb/dff_top.sv test/bed_test/tc001
+    ${CMDNAME} -t tb/dff_top.sv pattern/bed_test/tc001
 // after sim run, modified scenario & sim run
-    ${CMDNAME} test/bed_test/tc001
+    ${CMDNAME} pattern/bed_test/tc001
 EOF
 }
 
 # 各種変数と初期設定
 RTL_PRJ=""
-TEST_DIR=""
+PATTERN_DIR=""
 TESTBENCH_FILE=""
 TOP=""
 WORKLIB="worklib"
@@ -115,11 +115,11 @@ if [ ! -z "${param}" ] ; then
 	echo "Error: 指定された${param}は、ディレクトリではない"
 	E_FLAG=1
     fi
-    TEST_DIR=$( cd ${param}; pwd )
+    PATTERN_DIR=$( cd ${param}; pwd )
 fi
 
 # RTLプロジェクトファイル指定とテストケースディレクトリ指定のどちらかがなければならない
-if [ -z "${RTL_PRJ}" ] && [ -z "${TEST_DIR}" ] && [ -z "${TESTBENCH_FILE}" ]; then
+if [ -z "${RTL_PRJ}" ] && [ -z "${PATTERN_DIR}" ] && [ -z "${TESTBENCH_FILE}" ]; then
     echo "${CMDNAME}: too few arguments" 1>&2
     echo "Try '${CMDNAME} --help' for more information." 1>&2
     E_FLAG=1
@@ -132,13 +132,13 @@ if [ "${E_FLAG}" -eq 1 ]; then
 fi
 
 # シナリオの存在確認
-if [ ! -z "${TEST_DIR}" ]; then
-    SNAP_SHOT=$( echo $( cd ${TEST_DIR};pwd ) | awk -F "/" '{ print $(NF-1)"_"$(NF) }')
-    # TEST_DIR中にシナリオが存在することの確認
+if [ ! -z "${PATTERN_DIR}" ]; then
+    SNAP_SHOT=$( echo $( cd ${PATTERN_DIR};pwd ) | awk -F "/" '{ print $(NF-1)"_"$(NF) }')
+    # PATTERN_DIR中にシナリオが存在することの確認
     # シナリオファイルは"scenario"で始まり、拡張子が".c"であること
-    SCENARIO_FILE=`find ${TEST_DIR} -maxdepth 1 -name "scenario*.c" -prune -printf "%f"`
-    if [ ! -z "${TEST_DIR}" ] && [ -z "${SCENARIO_FILE}" ]; then
-	echo "Error: シナリオ記述がTEST_DIR(${TEST_DIR})中に無い"
+    SCENARIO_FILE=`find ${PATTERN_DIR} -maxdepth 1 -name "scenario*.c" -prune -printf "%f"`
+    if [ ! -z "${PATTERN_DIR}" ] && [ -z "${SCENARIO_FILE}" ]; then
+	echo "Error: シナリオ記述がPATTERN_DIR(${PATTERN_DIR})中に無い"
 	E_FLAG=1
     fi
 fi
@@ -195,10 +195,10 @@ rename_dir()
 # シナリオコンパイル処理定義
 scenario_compile()
 {
-    local logfile="${TEST_DIR}/sim/scenario_compile.log"
+    local logfile="${PATTERN_DIR}/sim/scenario_compile.log"
     echo "===== Scenario Compile start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
-    echo "${XV_PATH}/bin/xsc ${XSC_OPTS} ${TEST_DIR}/${SCENARIO_FILE}" 2>&1 | tee -a ${logfile}
-    ${XV_PATH}/bin/xsc ${XSC_OPTS} ${TEST_DIR}/${SCENARIO_FILE} 2>&1 | tee -a ${logfile}
+    echo "${XV_PATH}/bin/xsc ${XSC_OPTS} ${PATTERN_DIR}/${SCENARIO_FILE}" 2>&1 | tee -a ${logfile}
+    ${XV_PATH}/bin/xsc ${XSC_OPTS} ${PATTERN_DIR}/${SCENARIO_FILE} 2>&1 | tee -a ${logfile}
     if [ -e ${logfile} -a $( grep -e "ERROR:" ${logfile} | wc -l) -ne 0 ]; then
 	exit 1
     fi
@@ -234,7 +234,7 @@ testbench_compile()
 # エラボレート処理定義
 elabolate()
 {
-    local logfile="${TEST_DIR}/sim/elabolate.log"
+    local logfile="${PATTERN_DIR}/sim/elabolate.log"
     echo "===== Elabolate start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
     echo "${XV_PATH}/bin/xelab ${XELAB_OPTS} ${WORKLIB}.${TOP} --snapshot ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
     ${XV_PATH}/bin/xelab ${XELAB_OPTS} ${WORKLIB}.${TOP} --snapshot ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
@@ -247,24 +247,24 @@ elabolate()
 # シミュレーション処理定義
 simulation()
 {
-    RUN_TCL="${TEST_DIR}/sim/run.tcl"
+    RUN_TCL="${PATTERN_DIR}/sim/run.tcl"
     if [ "${WAVE_ON}" -eq 1 ]; then
-	WAVE_TCL="${TEST_DIR}/wave.tcl"
+	WAVE_TCL="${PATTERN_DIR}/wave.tcl"
 	if [ -e "${WAVE_TCL}" ]; then
 	    cat ${WAVE_TCL} > ${RUN_TCL}
 	    echo "run -all; quit" >> ${RUN_TCL}
 	else
 	    echo "log_wave -r /; run -all; quit" > ${RUN_TCL}
 	fi
-	WDB_FILE="-wdb ${TEST_DIR}/sim/wave.wdb"
-	WDB_OPEN_TCL="${TEST_DIR}/sim/wave_open.tcl"
+	WDB_FILE="-wdb ${PATTERN_DIR}/sim/wave.wdb"
+	WDB_OPEN_TCL="${PATTERN_DIR}/sim/wave_open.tcl"
 	echo "current_fileset" > ${WDB_OPEN_TCL}
 	echo "open_wave_database ${WDB_FILE}" >> ${WDB_OPEN_TCL}
 	echo "add_wave /DUT" >> ${WDB_OPEN_TCL}
     else
 	echo "run -all; quit" > ${RUN_TCL}
     fi
-    local logfile="${TEST_DIR}/sim/sim.log"
+    local logfile="${PATTERN_DIR}/sim/sim.log"
     echo "===== Simulation start:$(date +%Y/%m/%d-%H:%M:%S)" 2>&1 | tee ${logfile}
     echo "${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${WDB_FILE} ${SNAP_SHOT}" 2>&1 | tee -a ${logfile}
     ${XV_PATH}/bin/xsim ${XSIM_OPTS} -t ${RUN_TCL} ${WDB_FILE} ${SNAP_SHOT} 2>&1 | tee -a ${logfile}
@@ -278,8 +278,8 @@ simulation()
 if [ -e command.log ]; then
     rm -f command.log
 fi
-if [ ! -z "${TEST_DIR}" ]; then
-    rename_dir "${TEST_DIR}" "sim" "*.log"
+if [ ! -z "${PATTERN_DIR}" ]; then
+    rename_dir "${PATTERN_DIR}" "sim" "*.log"
 fi
 # シナリオコンパイル
 if [ ! -z "${SCENARIO_FILE}" ]; then
@@ -294,13 +294,13 @@ if [ ! -z "${TESTBENCH_FILE}" ]; then
     testbench_compile
 fi
 # エラボレート
-if [ ! -z "${TEST_DIR}" ] && [ ! -z "${TESTBENCH_FILE}" ]; then
+if [ ! -z "${PATTERN_DIR}" ] && [ ! -z "${TESTBENCH_FILE}" ]; then
     if [ "${WAVE_ON}" -eq 1 ]; then
 	XELAB_OPTS="${XELAB_OPTS} --debug wave"
     fi
     elabolate
 fi
 # シミュレート
-if [ ! -z "${TEST_DIR}" ] && [ ! -z "${SCENARIO_FILE}" ]; then
+if [ ! -z "${PATTERN_DIR}" ] && [ ! -z "${SCENARIO_FILE}" ]; then
     simulation
 fi
