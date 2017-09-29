@@ -34,7 +34,7 @@ module dff_c2sif_top;
    end
 
    // シナリオからのデータを論理に入力するドライバ
-   drv_c2sif #( .id(1), .din_delay(3) )
+   drv_c2sif #( .id(1) )
    drv_c2sif(
 	   .c2sif(c2sif),
 	   .clk(clk),

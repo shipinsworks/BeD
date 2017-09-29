@@ -2,6 +2,8 @@
  `define _C2SIF_SVH_
 
  `include "macro.svh"
+ `define C2SIF_FN_DATA_WRITE 0
+ `define C2SIF_FN_DATA_READ  1
 
 // シナリオ側マスタのインタフェース
 interface c2sif();

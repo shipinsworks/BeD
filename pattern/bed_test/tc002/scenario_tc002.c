@@ -1,29 +1,29 @@
 #include "stdio.h"
 #include "scenario.h"
+#include "drv_c2sif.h"
+#define  DFF_ID 1
 
 // シナリオ関数
 void scenario()
 {
   int ret;
-  uint32_t data[C2SIF_DATA_SIZE];
+  int dout;
   printf("Hello, scenario_tc002!\n");
   // データを投入
-  data[0] = 0x01234567;
-  printf("write data[0]: 0x%08x",data[0]);
-  ret = write_packet( 1, 0, 0x00000001, 1, data );
+  printf("write din: 0");
+  ret = dff_data_in( DFF_ID, 0 );
   printf("ret: %d", ret);
   // 論理の反応を読む
-  ret = read_packet( 1, 1, 0x00000001, 1, data );
+  ret = dff_data_out( DFF_ID, &dout );
   printf("ret: %d", ret);
-  printf("read data[0]: 0x%08x",data[0]);
+  printf("read dout: 0x%08x",dout);
   // データを投入
-  data[0] = 0xfedcba98;
-  printf("write data[0]: 0x%08x",data[0]);
-  ret = write_packet( 1, 0, 0x00000002, 1, data );
+  printf("write din: 1");
+  ret = dff_data_in( DFF_ID, 1 );
   printf("ret: %d", ret);
   // 論理の反応を読む
-  ret = read_packet( 1, 1, 0x00000002, 1, data );
+  ret = dff_data_out( DFF_ID, &dout );
   printf("ret: %d", ret);
-  printf("read data[0]: 0x%08x",data[0]);
+  printf("read dout: %d",dout);
   // 終了
 }

@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "scenario.h"
+#include "drv_s2cif.h"
 
 // データファイル
 static FILE *fp0 = NULL;
@@ -54,8 +55,8 @@ int dff_put_data( s2cif_pkt_s *pkt )
 void scenario()
 {
   int ret = 0;
-  ret = func_setup( 1, 0, 0, dff_get_data );
-  ret = func_setup( 1, 1, 1, dff_put_data );
+  ret = func_setup( 1, S2CIF_FN_DATA_WRITE, 0, dff_get_data );
+  ret = func_setup( 1, S2CIF_FN_DATA_READ, 1, dff_put_data );
   printf("Hello, scenario_tc001!\n");
   // リターンすると通常はシミュレーション停止
   // 応答関数がEODを検出するまで待つ仕掛けをテストベンチに記述してある。
