@@ -126,6 +126,7 @@ module axi4_lite_master_bfm
       end
       `debug_printf(("call axi4_lite_master_write."));
       axi4_lite_master_write(gp_awaddr,gp_wdata);
+      gp_write_flag = 1'b0;
       -> gp_write_end_event;
    end
 
@@ -138,6 +139,7 @@ module axi4_lite_master_bfm
       end
       `debug_printf(("call axi4_lite_master_read."));
       axi4_lite_master_read(gp_araddr,gp_rdata);
+      gp_read_flag = 1'b0;
       -> gp_read_end_event;
    end
 
