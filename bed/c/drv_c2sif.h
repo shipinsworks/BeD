@@ -1,3 +1,6 @@
+#ifndef _DRV_C2SIF_H_
+#define _DRV_C2SIF_H_
+
 #include "scenario.h"
 
 #define DRV_C2SIF_FN_DATA_WRITE   0
@@ -28,3 +31,5 @@ int dff_data_out( uint32_t id, int *dout )
   *dout = (int)( pkt.data[0] & 0x1 );
   return pkt.ret;
 }
+
+#endif
