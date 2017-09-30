@@ -257,7 +257,7 @@ simulation()
 	    echo "log_wave -r /; run -all; quit" > ${RUN_TCL}
 	fi
 	WDB_FILE="-wdb ${PATTERN_DIR}/sim/wave.wdb"
-	WDB_OPEN_TCL="${PATTERN_DIR}/sim/wave_open.tcl"
+	WDB_OPEN_TCL="${PATTERN_DIR}/sim/open_wave.tcl"
 	echo "current_fileset" > ${WDB_OPEN_TCL}
 	echo "open_wave_database ${WDB_FILE}" >> ${WDB_OPEN_TCL}
 	echo "add_wave /DUT" >> ${WDB_OPEN_TCL}
